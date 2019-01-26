@@ -1,0 +1,44 @@
+<resources>
+    <string name="app_name">lib_common</string>
+    <string name="version">版本号</string>
+
+    <!-- 初始化地址 -->
+    <string name="systemUrl">123.160.220.35</string>
+    <string name="systemUrlHR">121.15.248.10</string>
+    <string name="systemUrlPT">59.58.111.58</string>
+    <string name="systemUrlGIS">183.62.7.42</string>
+    <string name="systemUrlCE">172.16.100.3</string>
+    <!-- 阿里云服务器地址 -->
+    <string name="systemUrlYDCE">123.160.220.35</string>
+    <!-- 公司服务器地址 -->
+    <!--<string name="systemUrlYDCE">gddst.wicp.net</string>-->
+    <!--<string name="systemUrlYDCE">172.16.1.40</string>-->
+
+    <!-- 初始化端口号 -->
+    <string name="systemPortNumber">30101</string>
+    <!--<string name="systemPortNumber">8091</string>-->
+
+    <string name="systemPortNumberPT">58093</string>
+    <string name="systemPortNumberGIS">8093</string>
+
+    <!-- 登入界面 -->
+    <string name="forget_password">忘记密码</string>
+    <string name="change_password">修改密码</string>
+    <string name="login">登入</string>
+    <string name="account">账号</string>
+    <string name="email">邮箱</string>
+    <string name="email_code">邮箱验证码</string>
+    <string name="get_email_code">获取验证码</string>
+    <string name="account_email_no_null">账号跟邮箱不能为空</string>
+    <string name="please_enter_new_password">请输入新密码</string>
+    <string name="please_enter_new_password_again">请再次输入新密码</string>
+    <string name="error_of_account_format">账号格式错误</string>
+    <string name="email_of_account_format">邮箱格式错误</string>
+    <string name="code_no_null">验证码不能为空</string>
+    <string name="user_name">姓名</string>
+    <string name="phone">手机号码</string>
+    <string name="company_name">公司名称</string>
+    <string name="rememberpassword">记住帐户</string>
+    <string name="login_msg">登入中请稍后...</string>
+
+</resources>

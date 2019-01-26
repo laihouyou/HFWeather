@@ -1,0 +1,74 @@
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion build_versions.target_sdk
+
+    defaultConfig {
+        minSdkVersion build_versions.min_sdk
+        targetSdkVersion build_versions.target_sdk
+        versionCode 1
+        versionName "1.0"
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
+
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+dependencies {
+    api fileTree(include: ['*.jar'], dir: 'libs')
+    api project(':rxpermissions')
+    api project(':baidu_tts')
+
+    // Support libraries
+//    api 'androidx.appcompat:appcompat:1.1.0-alpha01'
+//    api 'com.google.android.material:material:1.1.0-alpha02'
+//    api 'androidx.recyclerview:recyclerview:1.1.0-alpha01'
+//    api 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
+    api deps.support.appcompat_x
+    api deps.support.recyclerview_x
+    api deps.support.constraintlayout_x
+    api deps.support.material
+
+    //Retrofit2
+    api deps.retrofit.runtime
+    api deps.retrofit.adapter
+    api deps.retrofit.gson
+
+    //okhttp3
+    api deps.okhttp3.logging
+    api deps.okhttp3.okhttp
+
+    //rxlifecycle2  解决rxjava2内存泄漏
+    api deps.rxlifecycle2.rxlifecycle
+    api deps.rxlifecycle2.rxlifecycle_android
+
+    //二维码扫描
+    api deps.zxing
+
+    //event_bus
+    api deps.event_bus
+
+    //Arouter
+    api deps.arouter_api
+    annotationProcessor deps.arouter_compiler
+
+    //高德 定位功能
+    api deps.location
+}
