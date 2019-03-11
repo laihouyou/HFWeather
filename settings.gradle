@@ -1,1 +1,1 @@
-include ':app', ':lib_common', ':rxpermissions', ':baidu_tts'
+include ':app', ':lib_common', ':rxpermissions', ':baidu_tts', ':weather'

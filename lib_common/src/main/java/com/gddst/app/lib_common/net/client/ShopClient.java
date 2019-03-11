@@ -22,6 +22,9 @@ public interface ShopClient {
 //    @GET("top250")
 //
 
+    @GET()
+    Observable<Response<ResponseBody>> getProvinceList(@Url String url);
+
     //修改密码
     @POST()
     Observable<String> restPassword(@Url String url, @Body String par);
@@ -74,31 +77,6 @@ public interface ShopClient {
      */
     @GET()
     Observable<Response<ResponseBody>> generalRequest(@Url String noServerUrl, @QueryMap Map<String, String> param);
-
-//    /**
-//     * 登入
-//     * @param noServerUrl 未拼接ServerUrl
-//     * @return
-//     */
-//    @POST()
-//    Observable<UserBeanVO> login(@Url String noServerUrl);
-//
-//    /**
-//     * 位置上传
-//     * @param noServerUrl 未拼接ServerUrl
-//     * @param par
-//     * @return
-//     */
-//    @POST()
-//    Observable<ReturnMessage> traceUpload(@Url String noServerUrl, @Body RequestBody par);
-//
-//    /**
-//     * upDateApk
-//     * @param url 未拼接ServerUrl
-//     * @return
-//     */
-//    @POST()
-//    Observable<UpdateApkInfo[]> upDateApk(@Url String url);
 
     /**
      * 地址搜索

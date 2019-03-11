@@ -2,7 +2,6 @@ package com.gddst.app.assetmanagement;
 
 import android.Manifest;
 import android.content.Intent;
-import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -10,15 +9,20 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import com.gddst.app.lib_common.base.BaseActivity;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
+import com.gddst.lhy.weather.WeatherActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends BaseActivity {
     private static final  int CODE=52514;
+
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_app);
+    protected int BindLayout() {
+        return R.layout.activity_main_app;
+    }
+
+    @Override
+    protected void initView() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         RxPermissionsUtil.requestEachRxPermission(this,Manifest.permission.CAMERA);
@@ -29,21 +33,10 @@ public class MainActivity extends BaseActivity {
                 Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
                         .setAction("Action", null).show();
 
-//                Intent intent=new Intent(MainActivity.this,QRCodeActivity.class);
-//                startActivityForResult(intent,CODE);
+                Intent intent=new Intent(MainActivity.this, WeatherActivity.class);
+                startActivity(intent);
             }
         });
-
-    }
-
-    @Override
-    protected int BindLayout() {
-        return 0;
-    }
-
-    @Override
-    protected void initView() {
-
     }
 
     @Override

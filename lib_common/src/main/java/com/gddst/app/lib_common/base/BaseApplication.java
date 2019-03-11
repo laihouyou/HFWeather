@@ -4,10 +4,14 @@ import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
 import com.alibaba.android.arouter.launcher.ARouter;
+import com.com.sky.downloader.greendao.DaoMaster;
+import com.com.sky.downloader.greendao.DaoSession;
 import com.gddst.app.lib_common.constant.Constant;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.utils.ToastUtils;
 import com.gddst.app.lib_common.utils.Utils;
+import com.gddst.app.lib_common.weather.util.Keys;
+import interfaces.heweather.com.interfacesmodule.view.HeConfig;
 
 /**
  * 要想使用BaseApplication，必须在组件中实现自己的Application，并且继承BaseApplication；
@@ -28,6 +32,9 @@ public class BaseApplication extends Application {
     private SharedPreferences pPrefere; // 定义数据存储
     private SharedPreferences.Editor pEditor; // sharedpreferred数据提交
 
+    private static DaoSession daoSession;
+
+
     public static BaseApplication getIns() {
         return sInstance;
     }
@@ -42,8 +49,34 @@ public class BaseApplication extends Application {
         NetManager.INSTANCE.initShopClient();
         initARouter();
         initManager();
+        setSupDao();
+        initHFWeather();
     }
 
+    /**
+     * 初始化和风天气
+     */
+    private void initHFWeather() {
+        HeConfig.init(Keys.appId,Keys.key);
+        HeConfig.switchToFreeServerNode();
+    }
+
+    /**
+     * 获取StudentDao
+     */
+    private void setSupDao() {
+        // 创建数据
+        DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(this, "hlq.db", null);
+        DaoMaster daoMaster = new DaoMaster(devOpenHelper.getWritableDatabase());
+        daoSession=daoMaster.newSession();
+    }
+
+    public DaoSession getDaoSession(){
+        if (daoSession==null){
+            setSupDao();
+        }
+        return daoSession;
+    }
 
     private void initARouter() {
         if (Utils.isAppDebug()) {           // 这两行必须写在init之前，否则这些配置在init过程中将无效
