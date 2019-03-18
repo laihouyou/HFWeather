@@ -4,48 +4,46 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.LinearLayout;
-import android.widget.TextView;
+import android.view.ViewTreeObserver;
+import android.widget.*;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import com.bumptech.glide.Glide;
 import com.gddst.app.lib_common.base.BaseActivity;
+import com.gddst.app.lib_common.net.DlObserve;
+import com.gddst.app.lib_common.net.NetManager;
+import com.gddst.app.lib_common.weather.util.Keys;
 import com.gddst.lhy.weather.util.WeatherUtil;
+import com.gddst.lhy.weather.vo.*;
 import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
-import interfaces.heweather.com.interfacesmodule.bean.air.now.AirNow;
-import interfaces.heweather.com.interfacesmodule.bean.air.now.AirNowCity;
-import interfaces.heweather.com.interfacesmodule.bean.basic.Basic;
-import interfaces.heweather.com.interfacesmodule.bean.basic.Update;
-import interfaces.heweather.com.interfacesmodule.bean.weather.forecast.Forecast;
-import interfaces.heweather.com.interfacesmodule.bean.weather.forecast.ForecastBase;
-import interfaces.heweather.com.interfacesmodule.bean.weather.lifestyle.Lifestyle;
-import interfaces.heweather.com.interfacesmodule.bean.weather.lifestyle.LifestyleBase;
-import interfaces.heweather.com.interfacesmodule.bean.weather.now.Now;
-import interfaces.heweather.com.interfacesmodule.bean.weather.now.NowBase;
-import interfaces.heweather.com.interfacesmodule.view.HeWeather;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Function;
+import io.reactivex.functions.Function4;
+import io.reactivex.schedulers.Schedulers;
+import okhttp3.ResponseBody;
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+import retrofit2.Response;
 
+import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class WeatherActivity extends BaseActivity {
     //空气质量aqi
     private TextView aqi_text;
     private TextView pm25_text;
-//    //每天的天气预报情况
-//    private TextView tv_date;
-//    private TextView tv_two;
-//    private TextView tv_max;
-//    private TextView tv_min;
-    //生活建议
-//    private TextView comfort_text;
-//    private TextView car_wash_text;
-//    private TextView sport_text;
     //标题
     private TextView tv_title;
     private TextView tv_time;
     //当日天气
     private TextView tv_Celsius;
     private TextView tv_situation;
+
+    private ImageView im_pic;
+    private ScrollView scrollView;
 
     private LinearLayout day_linelayout;
     private LinearLayout suggestion_linearlayout;
@@ -73,20 +71,20 @@ public class WeatherActivity extends BaseActivity {
         aqi_text=findViewById(R.id.aqi_text);
         pm25_text=findViewById(R.id.pm25_text);
 
-//        tv_date=findViewById(R.id.tv_date);
-//        tv_two=findViewById(R.id.tv_two);
-//        tv_max=findViewById(R.id.tv_max);
-//        tv_min=findViewById(R.id.tv_min);
-
-//        comfort_text=findViewById(R.id.comfort_text);
-//        car_wash_text=findViewById(R.id.car_wash_text);
-//        sport_text=findViewById(R.id.sport_text);
-
         tv_title=findViewById(R.id.tv_title);
         tv_time=findViewById(R.id.tv_time);
 
         tv_Celsius=findViewById(R.id.tv_Celsius);
         tv_situation=findViewById(R.id.tv_situation);
+
+        im_pic=findViewById(R.id.im_pic);
+        scrollView=findViewById(R.id.scrollView);
+        scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
+            @Override
+            public void onScrollChanged() {
+                swipeRefres.setEnabled(scrollView.getScrollY()==0);
+            }
+        });
 
         day_linelayout=findViewById(R.id.day_linelayout);
         tv_time=findViewById(R.id.tv_time);
@@ -97,6 +95,7 @@ public class WeatherActivity extends BaseActivity {
             @Override
             public void onRefresh() {
                 requestWeather(weatherId);
+                getPicImage();
             }
         });
 
@@ -106,213 +105,150 @@ public class WeatherActivity extends BaseActivity {
     protected void initData() {
         weatherId=getIntent().getStringExtra(WeatherUtil.weatherId);
         SharedPreferences sharedPreferences= PreferenceManager.getDefaultSharedPreferences(this);
-        String nowBaseString=sharedPreferences.getString(WeatherUtil.nowBase,"");
-        String forecastBaseListString=sharedPreferences.getString(WeatherUtil.forecastBaseList,"");
-        String airNowCityString=sharedPreferences.getString(WeatherUtil.airNowCity,"");
-        String lifestyleBaseListString=sharedPreferences.getString(WeatherUtil.lifestyleBaseList,"");
-        if (isNullStr(nowBaseString,forecastBaseListString,airNowCityString,lifestyleBaseListString)){
+        String weatherVoString=sharedPreferences.getString(WeatherUtil.weatherVo,"");
+        if (TextUtils.isEmpty(weatherVoString)){
             //获取每日天气数据
             requestWeather(weatherId);
         }else {
             Gson gson=new Gson();
 
-            Now now=gson.fromJson(nowBaseString,Now.class);
-            showNowText(now);
+            WeatherVo weatherVo=gson.fromJson(weatherVoString,WeatherVo.class);
+            showText(weatherVo);
 
-            List<ForecastBase> forecastBaseList=gson.fromJson(forecastBaseListString,
-                    new TypeToken<List<ForecastBase>>(){}.getType());
-            showForecastText(forecastBaseList);
-
-            AirNowCity airNowCity=gson.fromJson(airNowCityString,AirNowCity.class);
-            showAirNowCityText(airNowCity);
-
-            List<LifestyleBase> lifestyleBaseList=gson.fromJson(lifestyleBaseListString,
-                    new TypeToken<List<LifestyleBase>>(){}.getType());
-            showLifestyleBaseText(lifestyleBaseList);
         }
-    }
 
-    private boolean isNullStr(String nowBaseString,String forecastBaseListString,
-                              String airNowCityString,String lifestyleBaseListString) {
-        return TextUtils.isEmpty(nowBaseString)
-                ||TextUtils.isEmpty(forecastBaseListString)
-                ||TextUtils.isEmpty(airNowCityString)
-                ||TextUtils.isEmpty(lifestyleBaseListString);
+        String picUrl=sharedPreferences.getString(WeatherUtil.picUrl,"");
+        if (TextUtils.isEmpty(picUrl)){
+            getPicImage();
+        }else {
+            Glide.with(WeatherActivity.this).load(picUrl).into(im_pic);
+        }
     }
 
     private void requestWeather(String weatherId) {
         weatherId="广州";
         final Gson gson=new Gson();
-        final boolean[] weatherNow = {false};
-        final boolean[] weatherForecast = {false};
-        final boolean[] weatherAirNow = {false};
-        final boolean[] weatherLifeStyle = {false};
-        HeWeather.getWeatherNow(this, weatherId, new HeWeather.OnResultWeatherNowBeanListener() {
-            @Override
-            public void onError(Throwable throwable) {
-                Log.i("tag",throwable.getMessage());
-                weatherNow[0] =false;
-            }
 
-            @Override
-            public void onSuccess(List<Now> list) {
-                Log.i("tag",list.toString());
-                if (list.size()>0){
-                    final Now now=list.get(0);
-                    String startus=now.getStatus();
-                    if (startus.equals("ok")){
-                        weatherNow[0] =true;
+        Observable observableNow= NetManager.INSTANCE.getShopClient()
+                .getWeatherNow(Keys.key,weatherId)
+                .map(new Function<Response<ResponseBody>, WeatherVo>() {
+                    @Override
+                    public WeatherVo apply(Response<ResponseBody> response) throws Exception {
+                        return ResponseToWeatherVo(response,gson);
                     }
-                    NowBase nowBase= now.getNow();
-                    if (nowBase!=null){
+                }).subscribeOn(Schedulers.io());
+        Observable observableAirNow=NetManager.INSTANCE.getShopClient()
+                .getAirNow(Keys.key,weatherId)
+                .map(new Function<Response<ResponseBody>, AirNow>() {
+                    @Override
+                    public AirNow apply(Response<ResponseBody> response) throws Exception {
+                        return ResponseToAirNow(response,gson);
+                    }
+                }).subscribeOn(Schedulers.io());
+        Observable observableForecast=NetManager.INSTANCE.getShopClient()
+                .getWeatherForecast(Keys.key,weatherId)
+                .map(new Function<Response<ResponseBody>, List<WeatherForecast>>() {
+                    @Override
+                    public List<WeatherForecast> apply(Response<ResponseBody> response) throws Exception {
+                        return ResponseToWeatherForecast(response,gson);
+                    }
+                }).subscribeOn(Schedulers.io());
+        Observable observableLifestyle=NetManager.INSTANCE.getShopClient()
+                .getWeatherLifeStyle(Keys.key,weatherId)
+                .map(new Function<Response<ResponseBody>, List<LifestyleVo>>() {
+                    @Override
+                    public List<LifestyleVo> apply(Response<ResponseBody> response) throws Exception {
+                        return ResponseToLifestyle(response,gson);
+                    }
+                }).subscribeOn(Schedulers.io());
+
+        Observable.zip(observableNow, observableAirNow, observableForecast, observableLifestyle,
+                new Function4<WeatherVo, AirNow,List<WeatherForecast>,List<LifestyleVo>,WeatherVo>() {
+                    @Override
+                    public WeatherVo apply(
+                            WeatherVo weatherVo,
+                            com.gddst.lhy.weather.vo.AirNow airNow,
+                            List<WeatherForecast> weatherForecasts,
+                            List<LifestyleVo> lifestyles) throws Exception {
+                        weatherVo.setAirNow(airNow);
+                        weatherVo.setWeatherForecastList(weatherForecasts);
+                        weatherVo.setLifestyleVoList(lifestyles);
+
                         SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences
                                 (WeatherActivity.this).edit();
-                        editor.putString(WeatherUtil.nowBase,gson.toJson(nowBase));
+                        editor.putString(WeatherUtil.weatherVo,gson.toJson(weatherVo));
                         editor.apply();
 
+                        return weatherVo;
                     }
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            showNowText(now);
-                        }
-                    });
-                }
-            }
-        });
-        HeWeather.getWeatherForecast(this, weatherId, new HeWeather.OnResultWeatherForecastBeanListener() {
-            @Override
-            public void onError(Throwable throwable) {
-                weatherForecast[0] =false;
-            }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DlObserve<WeatherVo>() {
 
-            @Override
-            public void onSuccess(List<Forecast> list) {
-                Log.i("tag",list.toString());
-                if (list.size()>0){
-                    Forecast forecast=list.get(0);
-                    if (forecast.getStatus().equals("ok")){
-                        weatherForecast[0] =true;
+                    @Override
+                    public void onResponse(WeatherVo weatherVo) throws IOException {
+                        showText(weatherVo);
+                        swipeRefres.setRefreshing(false);
+                        Toast.makeText(WeatherActivity.this,weatherVo.getStatus(),Toast.LENGTH_LONG).show();
                     }
-                    final List<ForecastBase> forecastBaseList= forecast.getDaily_forecast();
-                    if (forecastBaseList!=null){
-                        String forecastBaseListStr=gson.toJson(forecastBaseList);
-                        SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences
-                                (WeatherActivity.this).edit();
-                        editor.putString(WeatherUtil.forecastBaseList,forecastBaseListStr);
-                        editor.apply();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                               showForecastText(forecastBaseList);
-                            }
-                        });
-                    }
-                }
-            }
-        });
-        HeWeather.getAirNow(this, weatherId, new HeWeather.OnResultAirNowBeansListener() {
-            @Override
-            public void onError(Throwable throwable) {
-                weatherAirNow[0] =false;
-            }
 
-            @Override
-            public void onSuccess(List<AirNow> list) {
-                Log.i("tag",list.toString());
-                if (list.size()>0){
-                    AirNow airNow=list.get(0);
-                    if (airNow.getStatus().equals("ok")){
-                        weatherAirNow[0] =true;
+                    @Override
+                    public void onError(int errorCode, String errorMsg) {
+                        Toast.makeText(WeatherActivity.this,errorMsg,Toast.LENGTH_LONG).show();
+                        swipeRefres.setRefreshing(false);
                     }
-                    final AirNowCity airNowCity= airNow.getAir_now_city();
-                    if (airNowCity!=null){
-                        SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences
-                                (WeatherActivity.this).edit();
-                        editor.putString(WeatherUtil.airNowCity,gson.toJson(airNowCity));
-                        editor.apply();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showAirNowCityText(airNowCity);
-                            }
-                        });
-                    }
-                }
-            }
-        });
-        HeWeather.getWeatherLifeStyle(this, weatherId, new HeWeather.OnResultWeatherLifeStyleBeanListener() {
-            @Override
-            public void onError(Throwable throwable) {
-                weatherLifeStyle[0] =false;
-            }
-
-            @Override
-            public void onSuccess(List<Lifestyle> list) {
-                Log.i("tag",list.toString());
-                if (list.size()>0){
-                    Lifestyle lifestyle=list.get(0);
-                    if (lifestyle.getStatus().equals("ok")){
-                        weatherLifeStyle[0] =true;
-                    }
-                    final List<LifestyleBase> lifestyleBaseList= lifestyle.getLifestyle();
-                    if (lifestyleBaseList!=null){
-                        SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences
-                                (WeatherActivity.this).edit();
-                        editor.putString(WeatherUtil.lifestyleBaseList,gson.toJson(lifestyleBaseList));
-                        editor.apply();
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                showLifestyleBaseText(lifestyleBaseList);
-                            }
-                        });
-                    }
-                }
-            }
-        });
+                });
 
     }
 
-    private void showLifestyleBaseText(List<LifestyleBase> lifestyleBaseList) {
-        if (lifestyleBaseList==null)
+    private void getPicImage(){
+        final Gson gson=new Gson();
+        NetManager.INSTANCE.getShopClient()
+                .getPicUrl()
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DlObserve<Response<ResponseBody>>() {
+                    @Override
+                    public void onResponse(Response<ResponseBody> s) throws IOException {
+                        if (s.code()==200){
+                            String picUrl=s.body().string();
+                            SharedPreferences.Editor editor=PreferenceManager.getDefaultSharedPreferences
+                                    (WeatherActivity.this).edit();
+                            editor.putString(WeatherUtil.picUrl,gson.toJson(picUrl));
+                            editor.apply();
+                            Glide.with(WeatherActivity.this).load(picUrl).into(im_pic);
+                        }
+                    }
+
+                    @Override
+                    public void onError(int errorCode, String errorMsg) {
+                        Toast.makeText(WeatherActivity.this,errorMsg,Toast.LENGTH_LONG).show();
+                    }
+                });
+    }
+
+    private void showText(WeatherVo weatherVo) {
+        if (weatherVo==null)
+            return;
+        List<LifestyleVo> lifestyleVos=weatherVo.getLifestyleVoList();
+        List<WeatherForecast> weatherForecasts=weatherVo.getWeatherForecastList();
+        AirNow airNow=weatherVo.getAirNow();
+        Now now=weatherVo.getNow();
+
+        if (lifestyleVos==null)
             return;
         suggestion_linearlayout.removeAllViews();
-        for (LifestyleBase lifestyleBase:lifestyleBaseList){
+        for (LifestyleVo lifestyleBase:lifestyleVos){
             View view=getLayoutInflater().inflate(R.layout.item_suggestion_text,suggestion_linearlayout,false);
             TextView item_suggestion_text_tv=view.findViewById(R.id.item_suggestion_text_tv);
             item_suggestion_text_tv.setText(lifestyleBase.getBrf()+":"+lifestyleBase.getTxt());
             suggestion_linearlayout.addView(item_suggestion_text_tv);
         }
 
-    }
-
-    private void showAirNowCityText(AirNowCity airNowCity) {
-        aqi_text.setText(airNowCity.getAqi());
-        pm25_text.setText(airNowCity.getPm25());
-    }
-
-    private void showNowText(Now now) {
-        NowBase nowBase=now.getNow();
-        if (nowBase!=null){
-            tv_Celsius.setText(nowBase.getFl()+"℃");
-            tv_situation.setText(nowBase.getCond_txt());
-        }
-        Basic basic=now.getBasic();
-        if (basic!=null){
-            tv_title.setText(basic.getLocation());
-        }
-        Update update=now.getUpdate();
-        if (update!=null){
-            tv_time.setText(update.getLoc());
-        }
-    }
-
-    private void showForecastText(List<ForecastBase> forecastBaseList) {
-        if (forecastBaseList==null)
+        if (weatherForecasts==null)
             return;
         day_linelayout.removeAllViews();
-        for (ForecastBase forecastBase:forecastBaseList){
+        for (WeatherForecast forecastBase:weatherForecasts){
             View view = getLayoutInflater().inflate(R.layout.item_day_text, day_linelayout, false);
             TextView tv_date=view.findViewById(R.id.tv_date);
             TextView tv_two=view.findViewById(R.id.tv_two);
@@ -324,5 +260,75 @@ public class WeatherActivity extends BaseActivity {
             tv_min.setText(forecastBase.getTmp_min());
             day_linelayout.addView(view);
         }
+
+        aqi_text.setText(airNow.getAqi());
+        pm25_text.setText(airNow.getPm25());
+
+
+        if (now!=null){
+            tv_Celsius.setText(now.getFl()+"℃");
+            tv_situation.setText(now.getCond_txt());
+        }
+
+        tv_title.setText(weatherVo.getBasic().getLocation());
+        tv_time.setText(weatherVo.getUpdate().getLoc());
     }
+
+
+    private WeatherVo ResponseToWeatherVo(Response<ResponseBody> response,Gson gson) throws IOException, JSONException {
+        if (response.code()!=200||gson==null){
+            return new WeatherVo();
+        }
+        String body=response.body().string();
+        JSONObject jsonObject=new JSONObject(body);
+        JSONArray jsonArray=jsonObject.getJSONArray(WeatherUtil.HeWeather6);
+        WeatherVo weatherVo=gson.fromJson(jsonArray.get(0).toString(),WeatherVo.class);
+        return weatherVo;
+    }
+    private AirNow ResponseToAirNow(Response<ResponseBody> response,Gson gson) throws IOException, JSONException {
+        if (response.code()!=200||gson==null){
+            return new AirNow();
+        }
+        String body=response.body().string();
+        JSONObject jsonObject=new JSONObject(body);
+        JSONArray jsonArray=jsonObject.getJSONArray(WeatherUtil.HeWeather6);
+        JSONObject weatherObject=jsonArray.getJSONObject(0);
+        AirNow airNow=gson.fromJson(weatherObject.getJSONObject(WeatherUtil.air_now_city).toString(),AirNow.class);
+        return airNow;
+    }
+    private List<WeatherForecast> ResponseToWeatherForecast(Response<ResponseBody> response,Gson gson) throws IOException, JSONException {
+        if (response.code()!=200||gson==null){
+            return new ArrayList<>();
+        }
+        String body=response.body().string();
+        JSONObject jsonObject=new JSONObject(body);
+        JSONArray jsonArray=jsonObject.getJSONArray(WeatherUtil.HeWeather6);
+        JSONObject weatherObject=jsonArray.getJSONObject(0);
+        JSONArray daily_forecastJsonArray=weatherObject.getJSONArray(WeatherUtil.daily_forecast);
+        List<WeatherForecast> weatherForecasts=new ArrayList<>();
+        for (int i = 0; i < daily_forecastJsonArray.length(); i++) {
+            String daily_forecastStr=daily_forecastJsonArray.getJSONObject(i).toString();
+            WeatherForecast weatherForecast=gson.fromJson(daily_forecastStr,WeatherForecast.class);
+            weatherForecasts.add(weatherForecast);
+        }
+        return weatherForecasts;
+    }
+    private List<LifestyleVo> ResponseToLifestyle(Response<ResponseBody> response,Gson gson) throws IOException, JSONException {
+        if (response.code()!=200||gson==null){
+            return new ArrayList<>();
+        }
+        String body=response.body().string();
+        JSONObject jsonObject=new JSONObject(body);
+        JSONArray jsonArray=jsonObject.getJSONArray(WeatherUtil.HeWeather6);
+        JSONObject weatherObject=jsonArray.getJSONObject(0);
+        JSONArray daily_forecastJsonArray=weatherObject.getJSONArray(WeatherUtil.lifestyle);
+        List<LifestyleVo> weatherForecasts=new ArrayList<>();
+        for (int i = 0; i < daily_forecastJsonArray.length(); i++) {
+            String daily_forecastStr=daily_forecastJsonArray.getJSONObject(i).toString();
+            LifestyleVo weatherForecast=gson.fromJson(daily_forecastStr,LifestyleVo.class);
+            weatherForecasts.add(weatherForecast);
+        }
+        return weatherForecasts;
+    }
+
 }

@@ -10,8 +10,6 @@ import com.gddst.app.lib_common.constant.Constant;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.utils.ToastUtils;
 import com.gddst.app.lib_common.utils.Utils;
-import com.gddst.app.lib_common.weather.util.Keys;
-import interfaces.heweather.com.interfacesmodule.view.HeConfig;
 
 /**
  * 要想使用BaseApplication，必须在组件中实现自己的Application，并且继承BaseApplication；
@@ -57,8 +55,8 @@ public class BaseApplication extends Application {
      * 初始化和风天气
      */
     private void initHFWeather() {
-        HeConfig.init(Keys.appId,Keys.key);
-        HeConfig.switchToFreeServerNode();
+//        HeConfig.init(Keys.appId,Keys.key);
+//        HeConfig.switchToFreeServerNode();
     }
 
     /**

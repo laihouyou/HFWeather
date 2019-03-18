@@ -67,5 +67,6 @@ dependencies {
     api deps.location
     //数据库
     api deps.greendao
-    implementation files('libs/sdk_HeWeather_Public_Android_V2.2.jar')
+    //图片加载
+    api deps.glide
 }

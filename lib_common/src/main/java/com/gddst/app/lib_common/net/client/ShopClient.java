@@ -2,13 +2,11 @@ package com.gddst.app.lib_common.net.client;
 
 
 import io.reactivex.Observable;
-import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
-import org.json.JSONArray;
 import retrofit2.Response;
-import retrofit2.http.*;
-
-import java.util.Map;
+import retrofit2.http.GET;
+import retrofit2.http.Query;
+import retrofit2.http.Url;
 
 /**
  * Created by chenzj on 2017/4/11.
@@ -25,75 +23,20 @@ public interface ShopClient {
     @GET()
     Observable<Response<ResponseBody>> getProvinceList(@Url String url);
 
-    //修改密码
-    @POST()
-    Observable<String> restPassword(@Url String url, @Body String par);
+    @GET("https://free-api.heweather.net/s6/weather/now")
+    Observable<Response<ResponseBody>> getWeatherNow(@Query("key") String key, @Query("location") String location);
 
-    /**
-     * 下载所有工单内容
-     * @param completeUrl   已拼接ServerUrl
-     * @return
-     */
-    @POST("")
-    Observable<Response<ResponseBody>> postData(@Url String completeUrl);
+    @GET("https://free-api.heweather.net/s6/weather/forecast")
+    Observable<Response<ResponseBody>> getWeatherForecast(@Query("key") String key, @Query("location") String location);
 
-    /**
-     * 下载所有工单内容
-     * @param completeUrl   已拼接ServerUrl
-     * @return
-     */
-    @POST("")
-    Observable<JSONArray> postJsonArrayData(@Url String completeUrl);
+    @GET("https://free-api.heweather.net/s6/air/now")
+    Observable<Response<ResponseBody>> getAirNow(@Query("key") String key, @Query("location") String location);
 
-    /**
-     * 通用请求
-     * @param completeUrl
-     * @return
-     */
-    @POST()
-    Observable<String> generalRequest(@Url String completeUrl);
+    @GET("https://free-api.heweather.net/s6/weather/lifestyle")
+    Observable<Response<ResponseBody>> getWeatherLifeStyle(@Query("key") String key, @Query("location") String location);
 
-    /**
-     * 通用请求
-     * @param noServerUrl 未拼接ServerUrl
-     * @return
-     */
-    @POST()
-    Observable<Response<ResponseBody>> generalRequestBody(@Url String noServerUrl);
-
-    /**
-     * 通用请求
-     * @param noServerUrl 未拼接ServerUrl
-     * @param par
-     * @return
-     */
-    @POST()
-    Observable<Response<ResponseBody>> generalRequest(@Url String noServerUrl, @Body RequestBody par);
-
-    /**
-     * 爆管分析
-     * @param noServerUrl 未拼接ServerUrl
-     * @return
-     */
-    @GET()
-    Observable<Response<ResponseBody>> generalRequest(@Url String noServerUrl, @QueryMap Map<String, String> param);
-
-    /**
-     * 地址搜索
-     * @param url 未拼接ServerUrl
-     * @return
-     */
-    @GET()
-    Observable<String> addressSearch(@Url String url);
-
-
-    /**
-     * 附件及附属信息上传
-     * @param noServerUrl 未拼接ServerUrl
-     * @return
-     */
-    @POST()
-    Observable<Response<ResponseBody>> uploadFile(@Url String noServerUrl, @Body RequestBody requestBody);
+    @GET("http://guolin.tech/api/bing_pic")
+    Observable<Response<ResponseBody>> getPicUrl();
 
 
 }
