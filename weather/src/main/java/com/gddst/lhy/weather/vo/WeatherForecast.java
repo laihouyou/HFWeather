@@ -41,7 +41,7 @@ public class WeatherForecast {
     private String wind_spd;
 
     public String getCond_code_d() {
-        return cond_code_d;
+        return cond_code_d == null ? "" : cond_code_d;
     }
 
     public void setCond_code_d(String cond_code_d) {
@@ -49,7 +49,7 @@ public class WeatherForecast {
     }
 
     public String getCond_code_n() {
-        return cond_code_n;
+        return cond_code_n == null ? "" : cond_code_n;
     }
 
     public void setCond_code_n(String cond_code_n) {
@@ -57,7 +57,7 @@ public class WeatherForecast {
     }
 
     public String getCond_txt_d() {
-        return cond_txt_d;
+        return cond_txt_d == null ? "" : cond_txt_d;
     }
 
     public void setCond_txt_d(String cond_txt_d) {
@@ -65,7 +65,7 @@ public class WeatherForecast {
     }
 
     public String getCond_txt_n() {
-        return cond_txt_n;
+        return cond_txt_n == null ? "" : cond_txt_n;
     }
 
     public void setCond_txt_n(String cond_txt_n) {
@@ -73,7 +73,7 @@ public class WeatherForecast {
     }
 
     public String getDate() {
-        return date;
+        return date == null ? "" : date;
     }
 
     public void setDate(String date) {
@@ -81,7 +81,7 @@ public class WeatherForecast {
     }
 
     public String getHum() {
-        return hum;
+        return hum == null ? "" : hum;
     }
 
     public void setHum(String hum) {
@@ -89,7 +89,7 @@ public class WeatherForecast {
     }
 
     public String getPcpn() {
-        return pcpn;
+        return pcpn == null ? "" : pcpn;
     }
 
     public void setPcpn(String pcpn) {
@@ -97,7 +97,7 @@ public class WeatherForecast {
     }
 
     public String getPop() {
-        return pop;
+        return pop == null ? "" : pop;
     }
 
     public void setPop(String pop) {
@@ -105,7 +105,7 @@ public class WeatherForecast {
     }
 
     public String getPres() {
-        return pres;
+        return pres == null ? "" : pres;
     }
 
     public void setPres(String pres) {
@@ -113,7 +113,7 @@ public class WeatherForecast {
     }
 
     public String getTmp_max() {
-        return tmp_max;
+        return tmp_max == null ? "" : tmp_max;
     }
 
     public void setTmp_max(String tmp_max) {
@@ -121,7 +121,7 @@ public class WeatherForecast {
     }
 
     public String getTmp_min() {
-        return tmp_min;
+        return tmp_min == null ? "" : tmp_min;
     }
 
     public void setTmp_min(String tmp_min) {
@@ -129,7 +129,7 @@ public class WeatherForecast {
     }
 
     public String getUv_index() {
-        return uv_index;
+        return uv_index == null ? "" : uv_index;
     }
 
     public void setUv_index(String uv_index) {
@@ -137,7 +137,7 @@ public class WeatherForecast {
     }
 
     public String getVis() {
-        return vis;
+        return vis == null ? "" : vis;
     }
 
     public void setVis(String vis) {
@@ -145,7 +145,7 @@ public class WeatherForecast {
     }
 
     public String getWind_deg() {
-        return wind_deg;
+        return wind_deg == null ? "" : wind_deg;
     }
 
     public void setWind_deg(String wind_deg) {
@@ -153,7 +153,7 @@ public class WeatherForecast {
     }
 
     public String getWind_dir() {
-        return wind_dir;
+        return wind_dir == null ? "" : wind_dir;
     }
 
     public void setWind_dir(String wind_dir) {
@@ -161,7 +161,7 @@ public class WeatherForecast {
     }
 
     public String getWind_sc() {
-        return wind_sc;
+        return wind_sc == null ? "" : wind_sc;
     }
 
     public void setWind_sc(String wind_sc) {
@@ -169,7 +169,7 @@ public class WeatherForecast {
     }
 
     public String getWind_spd() {
-        return wind_spd;
+        return wind_spd == null ? "" : wind_spd;
     }
 
     public void setWind_spd(String wind_spd) {

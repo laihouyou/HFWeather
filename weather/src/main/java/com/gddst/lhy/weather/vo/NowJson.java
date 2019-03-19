@@ -31,7 +31,7 @@ public class NowJson {
     }
 
     public String getStatus() {
-        return status;
+        return status == null ? "" : status;
     }
 
     public void setStatus(String status) {
@@ -68,7 +68,7 @@ public class NowJson {
         private String tz;
 
         public String getCid() {
-            return cid;
+            return cid == null ? "" : cid;
         }
 
         public void setCid(String cid) {
@@ -76,7 +76,7 @@ public class NowJson {
         }
 
         public String getLocation() {
-            return location;
+            return location == null ? "" : location;
         }
 
         public void setLocation(String location) {
@@ -84,7 +84,7 @@ public class NowJson {
         }
 
         public String getParent_city() {
-            return parent_city;
+            return parent_city == null ? "" : parent_city;
         }
 
         public void setParent_city(String parent_city) {
@@ -92,7 +92,7 @@ public class NowJson {
         }
 
         public String getAdmin_area() {
-            return admin_area;
+            return admin_area == null ? "" : admin_area;
         }
 
         public void setAdmin_area(String admin_area) {
@@ -100,7 +100,7 @@ public class NowJson {
         }
 
         public String getCnty() {
-            return cnty;
+            return cnty == null ? "" : cnty;
         }
 
         public void setCnty(String cnty) {
@@ -108,7 +108,7 @@ public class NowJson {
         }
 
         public String getLat() {
-            return lat;
+            return lat == null ? "" : lat;
         }
 
         public void setLat(String lat) {
@@ -116,7 +116,7 @@ public class NowJson {
         }
 
         public String getLon() {
-            return lon;
+            return lon == null ? "" : lon;
         }
 
         public void setLon(String lon) {
@@ -124,7 +124,7 @@ public class NowJson {
         }
 
         public String getTz() {
-            return tz;
+            return tz == null ? "" : tz;
         }
 
         public void setTz(String tz) {
@@ -142,7 +142,7 @@ public class NowJson {
         private String utc;
 
         public String getLoc() {
-            return loc;
+            return loc == null ? "" : loc;
         }
 
         public void setLoc(String loc) {
@@ -150,7 +150,7 @@ public class NowJson {
         }
 
         public String getUtc() {
-            return utc;
+            return utc == null ? "" : utc;
         }
 
         public void setUtc(String utc) {

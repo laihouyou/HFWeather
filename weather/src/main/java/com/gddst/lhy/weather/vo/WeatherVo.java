@@ -1,5 +1,6 @@
 package com.gddst.lhy.weather.vo;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class WeatherVo extends NowJson{
@@ -16,6 +17,9 @@ public class WeatherVo extends NowJson{
     private List<LifestyleVo> lifestyleVoList;
 
     public List<WeatherForecast> getWeatherForecastList() {
+        if (weatherForecastList == null) {
+            return new ArrayList<>();
+        }
         return weatherForecastList;
     }
 
@@ -32,11 +36,13 @@ public class WeatherVo extends NowJson{
     }
 
     public List<LifestyleVo> getLifestyleVoList() {
+        if (lifestyleVoList == null) {
+            return new ArrayList<>();
+        }
         return lifestyleVoList;
     }
 
     public void setLifestyleVoList(List<LifestyleVo> lifestyleVoList) {
         this.lifestyleVoList = lifestyleVoList;
     }
-
 }

@@ -31,12 +31,6 @@ import retrofit2.Response;
 import java.io.IOException;
 import java.util.List;
 
-/**
- * A fragment representing a list of Items.
- * <p/>
- * Activities containing this fragment MUST implement the {@link OnListFragmentInteractionListener}
- * interface.
- */
 public class ProvinceCityFragment extends Fragment   {
 
     // TODO: Customize parameter argument names
@@ -64,6 +58,8 @@ public class ProvinceCityFragment extends Fragment   {
 
     private String url="http://guolin.tech/api/china";
 
+    private OnFragmentToActivityListener onFragmentToActivityListener;
+
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -84,7 +80,7 @@ public class ProvinceCityFragment extends Fragment   {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
+        onFragmentToActivityListener= (OnFragmentToActivityListener) getActivity();
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
@@ -97,7 +93,7 @@ public class ProvinceCityFragment extends Fragment   {
         listView=view.findViewById(R.id.list);
         adapter=new ArrayAdapter<DummyContent.DummyItem>(
                 getActivity(),
-                android.R.layout.simple_expandable_list_item_1,
+                R.layout.item_text,
                 DummyContent.ITEMS);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -111,13 +107,16 @@ public class ProvinceCityFragment extends Fragment   {
                     provinceSelected.setProvinceCode(item.code);
                     setCityData();
                 }
-                if (item.dataType.equals(CITY)){
+                else if (item.dataType.equals(CITY)){
                     citySelected=new City();
                     citySelected.setId(item.id);
                     citySelected.setCityName(item.name);
                     citySelected.setCityCode(item.code);
                     citySelected.setProvinceId(item.fId);
                     setCountyData();
+                }
+                else if (item.dataType.equals(COUNTY)){
+                    onFragmentToActivityListener.onFragmentToActivityPutVaule(item.name);
                 }
             }
         });
@@ -239,17 +238,10 @@ public class ProvinceCityFragment extends Fragment   {
 
 
     /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
+     * fragment通过接口向activity传值
      */
-    public interface OnListFragmentInteractionListener {
+    public interface OnFragmentToActivityListener {
         // TODO: Update argument type and name
-        void onListFragmentInteraction(DummyItem item);
+        void onFragmentToActivityPutVaule(String vaule);
     }
 }

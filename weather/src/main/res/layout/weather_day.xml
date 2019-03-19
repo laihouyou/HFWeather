@@ -12,6 +12,7 @@
             android:layout_height="wrap_content"
             android:text="预报"
             android:textSize="@dimen/sp_25"
+            android:textColor="@color/white"
             android:layout_marginTop="@dimen/dp_15"
             android:layout_marginLeft="@dimen/dp_15"
     />

@@ -13,7 +13,7 @@ public class LifestyleVo {
     private String type;
 
     public String getBrf() {
-        return brf;
+        return brf == null ? "" : brf;
     }
 
     public void setBrf(String brf) {
@@ -21,7 +21,7 @@ public class LifestyleVo {
     }
 
     public String getTxt() {
-        return txt;
+        return txt == null ? "" : txt;
     }
 
     public void setTxt(String txt) {
@@ -29,7 +29,7 @@ public class LifestyleVo {
     }
 
     public String getType() {
-        return type;
+        return type == null ? "" : type;
     }
 
     public void setType(String type) {

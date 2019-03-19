@@ -18,61 +18,65 @@
             android:scaleType="centerCrop"
     />
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-            android:id="@+id/swipeRefres"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent" app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent">
-        <LinearLayout
+    <androidx.drawerlayout.widget.DrawerLayout
+            android:id="@+id/drawerLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+    >
+
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                android:id="@+id/swipeRefres"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
+                android:layout_height="match_parent"
         >
-            <include layout="@layout/titel">
-
-            </include>
-
-            <ScrollView
-                    android:id="@+id/scrollView"
+            <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:scrollbars="none"
-                    android:overScrollMode="never"
+                    android:orientation="vertical"
             >
-                <LinearLayout
+                <include layout="@layout/titel">
+
+                </include>
+
+                <ScrollView
+                        android:id="@+id/scrollView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
+                        android:scrollbars="none"
+                        android:overScrollMode="never"
                 >
-                    <include layout="@layout/weather_tv">
+                    <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                    >
+                        <include layout="@layout/weather_tv">
 
-                    </include>
-                    <include layout="@layout/weather_day">
+                        </include>
+                        <include layout="@layout/weather_day">
 
-                    </include>
-                    <include layout="@layout/aqi">
+                        </include>
+                        <include layout="@layout/aqi">
 
-                    </include>
-                    <include layout="@layout/suggestion">
+                        </include>
+                        <include layout="@layout/suggestion">
 
-                    </include>
+                        </include>
 
-                </LinearLayout>
-            </ScrollView>
-        </LinearLayout>
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+                    </LinearLayout>
+                </ScrollView>
+            </LinearLayout>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+        <FrameLayout
+                android:id="@+id/fragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity = "start"
+        >
+        </FrameLayout>
 
+    </androidx.drawerlayout.widget.DrawerLayout>
 
-
-
-    <!--<FrameLayout-->
-            <!--android:id="@+id/fragment"-->
-            <!--android:layout_width="match_parent"-->
-            <!--android:layout_height="match_parent"-->
-    <!--&gt;-->
-    <!--</FrameLayout>-->
 
 </androidx.constraintlayout.widget.ConstraintLayout>

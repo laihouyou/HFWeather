@@ -27,7 +27,7 @@ public class AirNow {
     private String so2;
 
     public String getAqi() {
-        return aqi;
+        return aqi == null ? "" : aqi;
     }
 
     public void setAqi(String aqi) {
@@ -35,7 +35,7 @@ public class AirNow {
     }
 
     public String getCo() {
-        return co;
+        return co == null ? "" : co;
     }
 
     public void setCo(String co) {
@@ -43,7 +43,7 @@ public class AirNow {
     }
 
     public String getMain() {
-        return main;
+        return main == null ? "" : main;
     }
 
     public void setMain(String main) {
@@ -51,7 +51,7 @@ public class AirNow {
     }
 
     public String getNo2() {
-        return no2;
+        return no2 == null ? "" : no2;
     }
 
     public void setNo2(String no2) {
@@ -59,7 +59,7 @@ public class AirNow {
     }
 
     public String getO3() {
-        return o3;
+        return o3 == null ? "" : o3;
     }
 
     public void setO3(String o3) {
@@ -67,7 +67,7 @@ public class AirNow {
     }
 
     public String getPm10() {
-        return pm10;
+        return pm10 == null ? "" : pm10;
     }
 
     public void setPm10(String pm10) {
@@ -75,7 +75,7 @@ public class AirNow {
     }
 
     public String getPm25() {
-        return pm25;
+        return pm25 == null ? "" : pm25;
     }
 
     public void setPm25(String pm25) {
@@ -83,7 +83,7 @@ public class AirNow {
     }
 
     public String getPub_time() {
-        return pub_time;
+        return pub_time == null ? "" : pub_time;
     }
 
     public void setPub_time(String pub_time) {
@@ -91,7 +91,7 @@ public class AirNow {
     }
 
     public String getQlty() {
-        return qlty;
+        return qlty == null ? "" : qlty;
     }
 
     public void setQlty(String qlty) {
@@ -99,7 +99,7 @@ public class AirNow {
     }
 
     public String getSo2() {
-        return so2;
+        return so2 == null ? "" : so2;
     }
 
     public void setSo2(String so2) {

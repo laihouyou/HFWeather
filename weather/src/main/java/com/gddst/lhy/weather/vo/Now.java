@@ -30,7 +30,7 @@ public class Now {
     private String wind_spd;
 
     public String getCond_code() {
-        return cond_code;
+        return cond_code == null ? "" : cond_code;
     }
 
     public void setCond_code(String cond_code) {
@@ -38,7 +38,7 @@ public class Now {
     }
 
     public String getCond_txt() {
-        return cond_txt;
+        return cond_txt == null ? "" : cond_txt;
     }
 
     public void setCond_txt(String cond_txt) {
@@ -46,7 +46,7 @@ public class Now {
     }
 
     public String getFl() {
-        return fl;
+        return fl == null ? "" : fl;
     }
 
     public void setFl(String fl) {
@@ -54,7 +54,7 @@ public class Now {
     }
 
     public String getHum() {
-        return hum;
+        return hum == null ? "" : hum;
     }
 
     public void setHum(String hum) {
@@ -62,7 +62,7 @@ public class Now {
     }
 
     public String getPcpn() {
-        return pcpn;
+        return pcpn == null ? "" : pcpn;
     }
 
     public void setPcpn(String pcpn) {
@@ -70,7 +70,7 @@ public class Now {
     }
 
     public String getPres() {
-        return pres;
+        return pres == null ? "" : pres;
     }
 
     public void setPres(String pres) {
@@ -78,7 +78,7 @@ public class Now {
     }
 
     public String getTmp() {
-        return tmp;
+        return tmp == null ? "" : tmp;
     }
 
     public void setTmp(String tmp) {
@@ -86,7 +86,7 @@ public class Now {
     }
 
     public String getVis() {
-        return vis;
+        return vis == null ? "" : vis;
     }
 
     public void setVis(String vis) {
@@ -94,7 +94,7 @@ public class Now {
     }
 
     public String getWind_deg() {
-        return wind_deg;
+        return wind_deg == null ? "" : wind_deg;
     }
 
     public void setWind_deg(String wind_deg) {
@@ -102,7 +102,7 @@ public class Now {
     }
 
     public String getWind_dir() {
-        return wind_dir;
+        return wind_dir == null ? "" : wind_dir;
     }
 
     public void setWind_dir(String wind_dir) {
@@ -110,7 +110,7 @@ public class Now {
     }
 
     public String getWind_sc() {
-        return wind_sc;
+        return wind_sc == null ? "" : wind_sc;
     }
 
     public void setWind_sc(String wind_sc) {
@@ -118,7 +118,7 @@ public class Now {
     }
 
     public String getWind_spd() {
-        return wind_spd;
+        return wind_spd == null ? "" : wind_spd;
     }
 
     public void setWind_spd(String wind_spd) {

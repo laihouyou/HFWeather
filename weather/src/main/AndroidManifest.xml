@@ -8,7 +8,8 @@
 
 
     <application>
-        <activity android:name=".WeatherActivity">
+        <activity android:name=".WeatherActivity" android:theme="@style/Theme.AppCompat.Light.NoActionBar"
+        >
         </activity>
     </application>
 

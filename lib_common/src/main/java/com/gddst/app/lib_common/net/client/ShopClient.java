@@ -35,6 +35,9 @@ public interface ShopClient {
     @GET("https://free-api.heweather.net/s6/weather/lifestyle")
     Observable<Response<ResponseBody>> getWeatherLifeStyle(@Query("key") String key, @Query("location") String location);
 
+    @GET("https://search.heweather.net/find")
+    Observable<Response<ResponseBody>> getCityId(@Query("key") String key, @Query("location") String location);
+
     @GET("http://guolin.tech/api/bing_pic")
     Observable<Response<ResponseBody>> getPicUrl();
 
