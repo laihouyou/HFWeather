@@ -7,6 +7,7 @@ import com.alibaba.android.arouter.launcher.ARouter;
 import com.com.sky.downloader.greendao.DaoMaster;
 import com.com.sky.downloader.greendao.DaoSession;
 import com.gddst.app.lib_common.constant.Constant;
+import com.gddst.app.lib_common.location.trace.Agps;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.utils.ToastUtils;
 import com.gddst.app.lib_common.utils.Utils;
@@ -32,7 +33,6 @@ public class BaseApplication extends Application {
 
     private static DaoSession daoSession;
 
-
     public static BaseApplication getIns() {
         return sInstance;
     }
@@ -48,15 +48,16 @@ public class BaseApplication extends Application {
         initARouter();
         initManager();
         setSupDao();
-        initHFWeather();
+        initLocation();
     }
 
     /**
-     * 初始化和风天气
+     * 初始化定位
      */
-    private void initHFWeather() {
+    private void initLocation() {
 //        HeConfig.init(Keys.appId,Keys.key);
 //        HeConfig.switchToFreeServerNode();
+
     }
 
     /**

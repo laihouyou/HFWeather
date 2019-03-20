@@ -13,7 +13,7 @@ import com.gddst.app.lib_common.utils.Utils;
 import java.util.Map;
 
 public class Agps {
-	private static LocationInfoExt locationInfo = null;
+	public static LocationInfoExt locationInfo = null;
 
 	private  static AMapLocationClient locationClient = null;
 	private static AMapLocationClientOption locationOption = null;
@@ -34,19 +34,19 @@ public class Agps {
 		locationClient.startLocation();
 	}
 
-	public Agps(long minTime, float minDistance){
-		//初始化client
-		locationClient = new AMapLocationClient(Utils.getContext());
-		locationOption = getDefaultOption((int) minTime);
-		//设置定位参数
-		locationClient.setLocationOption(locationOption);
-		// 设置定位监听
-		locationClient.setLocationListener(locationListener);
-		//设置定位后台通知栏
-		NotificationUtils notificationUtils=new NotificationUtils();
-		locationClient.enableBackgroundLocation(10008,notificationUtils.buildNotification());
-		locationClient.startLocation();
-	}
+//	public Agps(long minTime, float minDistance){
+//		//初始化client
+//		locationClient = new AMapLocationClient(Utils.getContext());
+//		locationOption = getDefaultOption((int) minTime);
+//		//设置定位参数
+//		locationClient.setLocationOption(locationOption);
+//		// 设置定位监听
+//		locationClient.setLocationListener(locationListener);
+//		//设置定位后台通知栏
+//		NotificationUtils notificationUtils=new NotificationUtils();
+//		locationClient.enableBackgroundLocation(10008,notificationUtils.buildNotification());
+//		locationClient.startLocation();
+//	}
 
 	/**
 	 * 默认的定位参数

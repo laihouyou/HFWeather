@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.*;
@@ -14,6 +15,8 @@ import androidx.fragment.app.FragmentTransaction;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.gddst.app.lib_common.base.BaseActivity;
+import com.gddst.app.lib_common.location.LocationInfoExt;
+import com.gddst.app.lib_common.location.trace.Agps;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.weather.util.Keys;
@@ -120,15 +123,46 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     protected void initData() {
         if (gson==null)
             gson=new Gson();
-//        weatherId = getIntent().getStringExtra(WeatherUtil.weatherId);
+        final Agps agps=new Agps();
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherVoString = sharedPreferences.getString(WeatherUtil.weatherVo, "");
+        weatherVoString="";
+//        weatherId = getIntent().getStringExtra(WeatherUtil.weatherId);
         if (TextUtils.isEmpty(weatherVoString)) {
-            //获取每日天气数据
-            requestWeather(weatherId);
-        } else {
+            while (Agps.getLocation()==null){
+                try {
+                    Thread.sleep(300);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+            //刚进来如果没有城市信息则去定位获取当前位置坐标
+            Observable.just(1)
+                    .map(new Function<Integer, String>() {
+                        @Override
+                        public String apply(Integer integer) throws Exception {
+                            LocationInfoExt locationInfoExt=Agps.getLocation();
+                            return locationInfoExt.getLongitudeGcj02()+","+locationInfoExt.getLatitudeGcj02();
+                        }
+                    })
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe(new DlObserve<String>() {
+                        @Override
+                        public void onResponse(String s) throws IOException {
+                            //获取每日天气
+                            requestWeather(s);
+                        }
 
+                        @Override
+                        public void onError(int errorCode, String errorMsg) {
+                            Log.i("tag", errorMsg);
+                        }
+                    });
+
+        } else {
             WeatherVo weatherVo = gson.fromJson(weatherVoString, WeatherVo.class);
+            weatherId=weatherVo.getBasic().getCid();
             showText(weatherVo);
 
         }
