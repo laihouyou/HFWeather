@@ -31,7 +31,7 @@ public class RxPermissionsUtil {
             @Override
             public void accept(@NonNull Permission permission) throws Exception {
                 if (permission.granted) {
-                    Toast.makeText(activity, "已获取权限"+ permission.name , Toast.LENGTH_SHORT).show();
+//                    Toast.makeText(activity, "已获取权限"+ permission.name , Toast.LENGTH_SHORT).show();
                 } else if (permission.shouldShowRequestPermissionRationale){
                     //拒绝权限请求
                     Toast.makeText(activity, "已拒绝权限"+ permission.name , Toast.LENGTH_SHORT).show();

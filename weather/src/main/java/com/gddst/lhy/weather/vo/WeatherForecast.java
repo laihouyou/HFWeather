@@ -2,24 +2,29 @@ package com.gddst.lhy.weather.vo;
 
 public class WeatherForecast {
 
+
     /**
-     * cond_code_d : 103
-     * cond_code_n : 101
-     * cond_txt_d : 晴间多云
-     * cond_txt_n : 多云
-     * date : 2017-10-26
-     * hum : 57
-     * pcpn : 0.0
-     * pop : 0
-     * pres : 1020
-     * tmp_max : 16
-     * tmp_min : 8
-     * uv_index : 3
-     * vis : 16
-     * wind_deg : 0
+     * cond_code_d : 104
+     * cond_code_n : 305
+     * cond_txt_d : 阴
+     * cond_txt_n : 小雨
+     * date : 2019-03-21
+     * hum : 65
+     * mr : 19:26
+     * ms : 07:13
+     * pcpn : 1.0
+     * pop : 55
+     * pres : 977
+     * sr : 06:55
+     * ss : 19:06
+     * tmp_max : 23
+     * tmp_min : 14
+     * uv_index : 2
+     * vis : 21
+     * wind_deg : -1
      * wind_dir : 无持续风向
-     * wind_sc : 微风
-     * wind_spd : 5
+     * wind_sc : 1-2
+     * wind_spd : 4
      */
 
     private String cond_code_d;
@@ -28,9 +33,13 @@ public class WeatherForecast {
     private String cond_txt_n;
     private String date;
     private String hum;
+    private String mr;
+    private String ms;
     private String pcpn;
     private String pop;
     private String pres;
+    private String sr;
+    private String ss;
     private String tmp_max;
     private String tmp_min;
     private String uv_index;
@@ -88,6 +97,22 @@ public class WeatherForecast {
         this.hum = hum;
     }
 
+    public String getMr() {
+        return mr == null ? "" : mr;
+    }
+
+    public void setMr(String mr) {
+        this.mr = mr;
+    }
+
+    public String getMs() {
+        return ms == null ? "" : ms;
+    }
+
+    public void setMs(String ms) {
+        this.ms = ms;
+    }
+
     public String getPcpn() {
         return pcpn == null ? "" : pcpn;
     }
@@ -110,6 +135,22 @@ public class WeatherForecast {
 
     public void setPres(String pres) {
         this.pres = pres;
+    }
+
+    public String getSr() {
+        return sr == null ? "" : sr;
+    }
+
+    public void setSr(String sr) {
+        this.sr = sr;
+    }
+
+    public String getSs() {
+        return ss == null ? "" : ss;
+    }
+
+    public void setSs(String ss) {
+        this.ss = ss;
     }
 
     public String getTmp_max() {

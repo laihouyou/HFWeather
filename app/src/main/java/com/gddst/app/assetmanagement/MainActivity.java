@@ -1,6 +1,5 @@
 package com.gddst.app.assetmanagement;
 
-import android.Manifest;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -8,7 +7,6 @@ import android.view.View;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 import com.gddst.app.lib_common.base.BaseActivity;
-import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.WeatherActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import com.google.android.material.snackbar.Snackbar;
@@ -25,7 +23,11 @@ public class MainActivity extends BaseActivity {
     protected void initView() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        RxPermissionsUtil.requestEachRxPermission(this,Manifest.permission.CAMERA);
+//        RxPermissionsUtil.requestEachRxPermission(
+//                this,
+//                Manifest.permission.CAMERA,
+//                Manifest.permission.ACCESS_COARSE_LOCATION
+//        );
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -41,7 +43,7 @@ public class MainActivity extends BaseActivity {
 
     @Override
     protected void initData() {
-
+//        Agps agps=new Agps(this);
     }
 
     @Override

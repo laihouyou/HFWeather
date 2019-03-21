@@ -1,5 +1,6 @@
 package com.gddst.app.lib_common.location.trace;
 
+import android.content.Context;
 import android.util.Log;
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -7,8 +8,8 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.gddst.app.lib_common.location.LocationInfoExt;
 import com.gddst.app.lib_common.location.coordinate.Gcj022Gps;
-import com.gddst.app.lib_common.utils.NotificationUtils;
 import com.gddst.app.lib_common.utils.Utils;
+import org.greenrobot.eventbus.EventBus;
 
 import java.util.Map;
 
@@ -19,18 +20,18 @@ public class Agps {
 	private static AMapLocationClientOption locationOption = null;
 	private long minTime = 10;
 	private float minDistance = 0;
+	private boolean isFirstLocation=true;	//是否首次定位成功
 
-	public Agps(){
+	public Agps(Context context){
 		//初始化client
 		locationClient = new AMapLocationClient(Utils.getContext());
-		locationOption = getDefaultOption(1000);
+		locationOption = getDefaultOption(2000);
 		//设置定位参数
 		locationClient.setLocationOption(locationOption);
 		// 设置定位监听
 		locationClient.setLocationListener(locationListener);
 		//设置定位后台通知栏
-		NotificationUtils notificationUtils=new NotificationUtils();
-		locationClient.enableBackgroundLocation(10008,notificationUtils.buildNotification());
+//		locationClient.enableBackgroundLocation(10008,buildNotification(context));
 		locationClient.startLocation();
 	}
 
@@ -79,7 +80,7 @@ public class Agps {
 
 	}
 	
-	public static void closeLocation() {
+	public  void closeLocation() {
 		// 停止定位
 		if (locationClient.isStarted()){
 			locationClient.unRegisterLocationListener(locationListener);
@@ -90,43 +91,50 @@ public class Agps {
 		}
 	}
 
-
 	/**
 	 * 定位监听
 	 */
-	static AMapLocationListener locationListener = new AMapLocationListener() {
+	 AMapLocationListener locationListener = new AMapLocationListener() {
 
 		@Override
 		public void onLocationChanged(AMapLocation aMapLocation) {
 			String addr = "";
 			String zoning = "";
 			if (aMapLocation!=null){
-				addr=aMapLocation.getAddress();
-				zoning=aMapLocation.getDistrict();
-				Map<String, Double> wgs84Map=Gcj022Gps.gcj2wgs(aMapLocation.getLongitude(),aMapLocation.getLatitude());
-				locationInfo = new LocationInfoExt(
-						wgs84Map.get("lat"),
-						wgs84Map.get("lon"),
-						aMapLocation.getAltitude(),
-						aMapLocation.getAccuracy(),
-						aMapLocation.getSpeed(),
-						aMapLocation.getBearing(),
-						aMapLocation.getTime()+"",
-						0,
-						0,
-						"高德定位",
-						addr,
-						aMapLocation.getSatellites(),
-						zoning
-				);
-				locationInfo.setLongitudeGcj02(aMapLocation.getLongitude());
-				locationInfo.setLatitudeGcj02(aMapLocation.getLatitude());
+				int locationType=aMapLocation.getErrorCode();
+				if (locationType==0){
+					addr=aMapLocation.getAddress();
+					zoning=aMapLocation.getDistrict();
+					Map<String, Double> wgs84Map=Gcj022Gps.gcj2wgs(aMapLocation.getLongitude(),aMapLocation.getLatitude());
+					locationInfo = new LocationInfoExt(
+							wgs84Map.get("lat"),
+							wgs84Map.get("lon"),
+							aMapLocation.getAltitude(),
+							aMapLocation.getAccuracy(),
+							aMapLocation.getSpeed(),
+							aMapLocation.getBearing(),
+							aMapLocation.getTime()+"",
+							0,
+							0,
+							"高德定位",
+							addr,
+							aMapLocation.getSatellites(),
+							zoning
+					);
+					locationInfo.setLongitudeGcj02(aMapLocation.getLongitude());
+					locationInfo.setLatitudeGcj02(aMapLocation.getLatitude());
 
-				Log.i("location",
-						"经度:"+aMapLocation.getLongitude()+"------"
-						+"纬度:"+aMapLocation.getLatitude()+"------"
-						+"地址:"+aMapLocation.getAddress()+"------"
-				);
+					if (isFirstLocation){
+						isFirstLocation=false;
+						EventBus.getDefault().post(locationInfo);
+					}
+
+					Log.i("location",
+							"经度:"+aMapLocation.getLongitude()+"------"
+									+"纬度:"+aMapLocation.getLatitude()+"------"
+									+"地址:"+aMapLocation.getAddress()+"------"
+					);
+				}
 			}
 		}
 	};

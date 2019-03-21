@@ -1,10 +1,12 @@
 package com.gddst.lhy.weather;
 
+import android.Manifest;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
 import android.widget.*;
@@ -16,19 +18,21 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
 import com.gddst.app.lib_common.base.BaseActivity;
 import com.gddst.app.lib_common.location.LocationInfoExt;
-import com.gddst.app.lib_common.location.trace.Agps;
+import com.gddst.app.lib_common.location.LocationIntentService;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.weather.util.Keys;
+import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.fragment.ProvinceCityFragment;
 import com.gddst.lhy.weather.util.WeatherUtil;
-import com.gddst.lhy.weather.vo.*;
+import com.gddst.lhy.weather.vo.AirNow;
+import com.gddst.lhy.weather.vo.WeatherVo;
 import com.google.gson.Gson;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
-import io.reactivex.functions.Function4;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import org.json.JSONArray;
@@ -37,7 +41,6 @@ import org.json.JSONObject;
 import retrofit2.Response;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class WeatherActivity extends BaseActivity implements View.OnClickListener,
@@ -65,6 +68,8 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     private Gson gson;
 
+    private boolean isLocationValue=false;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -72,12 +77,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     protected int BindLayout() {
-//        if (Build.VERSION.SDK_INT >= 21) {
-//            View decorView = getWindow().getDecorView();
-//            decorView.setSystemUiVisibility(View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-//                    | View.SYSTEM_UI_FLAG_LAYOUT_STABLE);
-//            getWindow().setStatusBarColor(Color.TRANSPARENT);
-//        }
         return R.layout.activity_weather;
     }
 
@@ -123,48 +122,43 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     protected void initData() {
         if (gson==null)
             gson=new Gson();
-        final Agps agps=new Agps();
+        requestPermission();
+        startLocationService();
+        initWeathert();
+
+
+    }
+
+    private void requestPermission() {
+        RxPermissionsUtil.requestEachRxPermission(
+                this,
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_COARSE_LOCATION
+        );
+    }
+
+    private void startLocationService() {
+        Intent locationIntentServiceIntent=new Intent(WeatherActivity.this, LocationIntentService.class);
+        locationIntentServiceIntent.setPackage(getPackageName());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            startForegroundService(locationIntentServiceIntent);
+        }else {
+            startService(locationIntentServiceIntent);
+        }
+    }
+
+    private void initWeathert() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         String weatherVoString = sharedPreferences.getString(WeatherUtil.weatherVo, "");
-        weatherVoString="";
-//        weatherId = getIntent().getStringExtra(WeatherUtil.weatherId);
         if (TextUtils.isEmpty(weatherVoString)) {
-            while (Agps.getLocation()==null){
-                try {
-                    Thread.sleep(300);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
             //刚进来如果没有城市信息则去定位获取当前位置坐标
-            Observable.just(1)
-                    .map(new Function<Integer, String>() {
-                        @Override
-                        public String apply(Integer integer) throws Exception {
-                            LocationInfoExt locationInfoExt=Agps.getLocation();
-                            return locationInfoExt.getLongitudeGcj02()+","+locationInfoExt.getLatitudeGcj02();
-                        }
-                    })
-                    .subscribeOn(Schedulers.io())
-                    .observeOn(AndroidSchedulers.mainThread())
-                    .subscribe(new DlObserve<String>() {
-                        @Override
-                        public void onResponse(String s) throws IOException {
-                            //获取每日天气
-                            requestWeather(s);
-                        }
-
-                        @Override
-                        public void onError(int errorCode, String errorMsg) {
-                            Log.i("tag", errorMsg);
-                        }
-                    });
-
+            isLocationValue=false;
+            showLocationBefore();
         } else {
             WeatherVo weatherVo = gson.fromJson(weatherVoString, WeatherVo.class);
             weatherId=weatherVo.getBasic().getCid();
             showText(weatherVo);
-
+            isLocationValue=true;
         }
 
         String picUrl = sharedPreferences.getString(WeatherUtil.picUrl, "");
@@ -175,34 +169,18 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
+    private void showLocationBefore() {
+        swipeRefres.setRefreshing(true);
+        tv_title.setText("正在获取当前所在城市");
+        tv_Celsius.setText("暂无数据");
+        tv_situation.setText("暂无数据");
+    }
+
     private void showPicImage(String picUrl) {
         Glide.with(WeatherActivity.this).load(picUrl).into(im_pic);
     }
 
     private void requestWeather(String weatherId) {
-//        weatherId = "CN101240703";
-
-//        getZip(
-//                getobservableNow(weatherId),
-//                getobservableAirNow(weatherId),
-//                getobservableForecast(weatherId),
-//                getobservableLifestyle(weatherId))
-//                .subscribeOn(Schedulers.io())
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new DlObserve<WeatherVo>() {
-//                    @Override
-//                    public void onResponse(WeatherVo weatherVo) throws IOException {
-//                        showText(weatherVo);
-//                        swipeRefres.setRefreshing(false);
-//                        Toast.makeText(WeatherActivity.this, weatherVo.getStatus(), Toast.LENGTH_LONG).show();
-//                    }
-//
-//                    @Override
-//                    public void onError(int errorCode, String errorMsg) {
-//                        Toast.makeText(WeatherActivity.this, errorMsg, Toast.LENGTH_LONG).show();
-//                        swipeRefres.setRefreshing(false);
-//                    }
-//                });
 
         NetManager.INSTANCE.getShopClient()
                 .getCityId(Keys.key,weatherId)
@@ -218,9 +196,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                     public ObservableSource<WeatherVo> apply(String weatherCode) throws Exception {
                         return getZip(
                                 getobservableNow(weatherCode),
-                                getobservableAirNow(weatherCode),
-                                getobservableForecast(weatherCode),
-                                getobservableLifestyle(weatherCode));
+                                getobservableAirNow(weatherCode));
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -241,28 +217,25 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     }
 
-    private Observable getZip(Observable observableNow,Observable observableAirNow,
-                              Observable observableForecast,Observable observableLifestyle){
-        return Observable.zip(observableNow, observableAirNow, observableForecast, observableLifestyle,
-                new Function4<WeatherVo, AirNow, List<WeatherForecast>, List<LifestyleVo>, WeatherVo>() {
-                    @Override
-                    public WeatherVo apply(
-                            WeatherVo weatherVo,
-                            com.gddst.lhy.weather.vo.AirNow airNow,
-                            List<WeatherForecast> weatherForecasts,
-                            List<LifestyleVo> lifestyles) throws Exception {
-                        weatherVo.setAirNow(airNow);
-                        weatherVo.setWeatherForecastList(weatherForecasts);
-                        weatherVo.setLifestyleVoList(lifestyles);
+    private Observable getZip(Observable observableNow,Observable observableAirNow){
+        return Observable.zip(observableNow, observableAirNow, new BiFunction() {
+            @Override
+            public Object apply(Object o, Object o2) throws Exception {
+                if (o instanceof WeatherVo&&o2 instanceof AirNow){
+                    WeatherVo weatherVo= (WeatherVo) o;
+                    AirNow airNow= (AirNow) o2;
+                    weatherVo.setAirNow(airNow);
+                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
+                            (WeatherActivity.this).edit();
+                    editor.putString(WeatherUtil.weatherVo, gson.toJson(weatherVo));
+                    editor.apply();
 
-                        SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
-                                (WeatherActivity.this).edit();
-                        editor.putString(WeatherUtil.weatherVo, gson.toJson(weatherVo));
-                        editor.apply();
+                    return weatherVo;
+                }
+                return new WeatherVo();
+            }
+        });
 
-                        return weatherVo;
-                    }
-                });
     }
 
     private Observable getobservableNow(String weatherId){
@@ -285,26 +258,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                     }
                 });
 
-    }
-    private Observable getobservableForecast(String weatherId){
-        return   NetManager.INSTANCE.getShopClient()
-                .getWeatherForecast(Keys.key, weatherId)
-                .map(new Function<Response<ResponseBody>, List<WeatherForecast>>() {
-                    @Override
-                    public List<WeatherForecast> apply(Response<ResponseBody> response) throws Exception {
-                        return ResponseToWeatherForecast(response, gson);
-                    }
-                });
-    }
-    private Observable getobservableLifestyle(String weatherId){
-        return   NetManager.INSTANCE.getShopClient()
-                .getWeatherLifeStyle(Keys.key, weatherId)
-                .map(new Function<Response<ResponseBody>, List<LifestyleVo>>() {
-                    @Override
-                    public List<LifestyleVo> apply(Response<ResponseBody> response) throws Exception {
-                        return ResponseToLifestyle(response, gson);
-                    }
-                });
     }
 
     private void getPicImage() {
@@ -335,15 +288,15 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     private void showText(WeatherVo weatherVo) {
         if (weatherVo == null)
             return;
-        List<LifestyleVo> lifestyleVos = weatherVo.getLifestyleVoList();
-        List<WeatherForecast> weatherForecasts = weatherVo.getWeatherForecastList();
+        List<WeatherVo.LifestyleBean> lifestyleVos = weatherVo.getLifestyle();
+        List<WeatherVo.DailyForecastBean> weatherForecasts = weatherVo.getDaily_forecast();
         AirNow airNow = weatherVo.getAirNow();
-        Now now = weatherVo.getNow();
+        WeatherVo.NowBean now = weatherVo.getNow();
 
         if (lifestyleVos == null)
             return;
         suggestion_linearlayout.removeAllViews();
-        for (LifestyleVo lifestyleBase : lifestyleVos) {
+        for (WeatherVo.LifestyleBean lifestyleBase : lifestyleVos) {
             View view = getLayoutInflater().inflate(R.layout.item_suggestion_text, suggestion_linearlayout, false);
             TextView item_suggestion_text_tv = view.findViewById(R.id.item_suggestion_text_tv);
             String text = "";
@@ -388,7 +341,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         if (weatherForecasts == null)
             return;
         day_linelayout.removeAllViews();
-        for (WeatherForecast forecastBase : weatherForecasts) {
+        for (WeatherVo.DailyForecastBean forecastBase : weatherForecasts) {
             View view = getLayoutInflater().inflate(R.layout.item_day_text, day_linelayout, false);
             TextView tv_date = view.findViewById(R.id.tv_date);
             TextView tv_two = view.findViewById(R.id.tv_two);
@@ -411,7 +364,8 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         }
 
         tv_title.setText(weatherVo.getBasic().getLocation());
-        tv_time.setText(weatherVo.getUpdate().getLoc());
+        String timeStr=weatherVo.getUpdate().getLoc().split(" ")[1];
+        tv_time.setText(timeStr);
     }
 
 
@@ -447,50 +401,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         return new AirNow();
     }
 
-    private List<WeatherForecast> ResponseToWeatherForecast(Response<ResponseBody> response, Gson gson) throws IOException, JSONException {
-        if (response.code() != 200 || gson == null) {
-            return new ArrayList<>();
-        }
-        String body = response.body().string();
-        JSONObject jsonObject = new JSONObject(body);
-        JSONArray jsonArray = jsonObject.getJSONArray(WeatherUtil.HeWeather6);
-        JSONObject weatherObject = jsonArray.getJSONObject(0);
-        String status=weatherObject.getString(WeatherUtil.status);
-        if (status.equals(WeatherUtil.ok)){
-            JSONArray daily_forecastJsonArray = weatherObject.getJSONArray(WeatherUtil.daily_forecast);
-            List<WeatherForecast> weatherForecasts = new ArrayList<>();
-            for (int i = 0; i < daily_forecastJsonArray.length(); i++) {
-                String daily_forecastStr = daily_forecastJsonArray.getJSONObject(i).toString();
-                WeatherForecast weatherForecast = gson.fromJson(daily_forecastStr, WeatherForecast.class);
-                weatherForecasts.add(weatherForecast);
-            }
-            return weatherForecasts;
-        }
-        return new ArrayList<>();
-    }
-
-    private List<LifestyleVo> ResponseToLifestyle(Response<ResponseBody> response, Gson gson) throws IOException, JSONException {
-        if (response.code() != 200 || gson == null) {
-            return new ArrayList<>();
-        }
-        String body = response.body().string();
-        JSONObject jsonObject = new JSONObject(body);
-        JSONArray jsonArray = jsonObject.getJSONArray(WeatherUtil.HeWeather6);
-        JSONObject weatherObject = jsonArray.getJSONObject(0);
-        String status=weatherObject.getString(WeatherUtil.status);
-        if (status.equals(WeatherUtil.ok)){
-            JSONArray daily_forecastJsonArray = weatherObject.getJSONArray(WeatherUtil.lifestyle);
-            List<LifestyleVo> weatherForecasts = new ArrayList<>();
-            for (int i = 0; i < daily_forecastJsonArray.length(); i++) {
-                String daily_forecastStr = daily_forecastJsonArray.getJSONObject(i).toString();
-                LifestyleVo weatherForecast = gson.fromJson(daily_forecastStr, LifestyleVo.class);
-                weatherForecasts.add(weatherForecast);
-            }
-            return weatherForecasts;
-        }
-        return new ArrayList<>();
-    }
-
     private String getCityId(Response<ResponseBody> response, Gson gson) throws IOException, JSONException {
         if (response.code() != 200 || gson == null) {
             return "";
@@ -524,5 +434,15 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         weatherId=vaule;
         requestWeather(vaule);
         getPicImage();
+    }
+
+    @Override
+    protected void onMessageEvent(Object event) {
+        super.onMessageEvent(event);
+        if (event instanceof LocationInfoExt&&!isLocationValue){
+            LocationInfoExt locationInfoExt= (LocationInfoExt) event;
+            String location=locationInfoExt.getLongitude()+","+locationInfoExt.getLatitude();
+            requestWeather(location);
+        }
     }
 }

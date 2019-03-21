@@ -23,17 +23,17 @@ public interface ShopClient {
     @GET()
     Observable<Response<ResponseBody>> getProvinceList(@Url String url);
 
-    @GET("https://free-api.heweather.net/s6/weather/now")
+    @GET("https://free-api.heweather.net/s6/weather")
     Observable<Response<ResponseBody>> getWeatherNow(@Query("key") String key, @Query("location") String location);
-
-    @GET("https://free-api.heweather.net/s6/weather/forecast")
-    Observable<Response<ResponseBody>> getWeatherForecast(@Query("key") String key, @Query("location") String location);
 
     @GET("https://free-api.heweather.net/s6/air/now")
     Observable<Response<ResponseBody>> getAirNow(@Query("key") String key, @Query("location") String location);
 
-    @GET("https://free-api.heweather.net/s6/weather/lifestyle")
-    Observable<Response<ResponseBody>> getWeatherLifeStyle(@Query("key") String key, @Query("location") String location);
+//    @GET("https://free-api.heweather.net/s6/weather/forecast")
+//    Observable<Response<ResponseBody>> getWeatherForecast(@Query("key") String key, @Query("location") String location);
+//
+//    @GET("https://free-api.heweather.net/s6/weather/lifestyle")
+//    Observable<Response<ResponseBody>> getWeatherLifeStyle(@Query("key") String key, @Query("location") String location);
 
     @GET("https://search.heweather.net/find")
     Observable<Response<ResponseBody>> getCityId(@Query("key") String key, @Query("location") String location);

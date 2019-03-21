@@ -3,14 +3,14 @@ package com.gddst.lhy.weather.vo;
 public class LifestyleVo {
 
     /**
-     * brf : 较不宜
-     * txt : 较不宜洗车，未来一天无雨，风力较大，如果执意擦洗汽车，要做好蒙上污垢的心理准备。
-     * type : cw
+     * type : comf
+     * brf : 舒适
+     * txt : 白天不太热也不太冷，风力不大，相信您在这样的天气条件下，应会感到比较清爽和舒适。
      */
 
+    private String type;
     private String brf;
     private String txt;
-    private String type;
 
     public String getBrf() {
         return brf == null ? "" : brf;

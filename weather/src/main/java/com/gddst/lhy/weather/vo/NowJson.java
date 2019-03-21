@@ -10,7 +10,6 @@ public class NowJson {
      */
 
     private BasicBean basic;
-    private Now now;
     private String status;
     private UpdateBean update;
 
@@ -20,14 +19,6 @@ public class NowJson {
 
     public void setBasic(BasicBean basic) {
         this.basic = basic;
-    }
-
-    public Now getNow() {
-        return now;
-    }
-
-    public void setNow(Now now) {
-        this.now = now;
     }
 
     public String getStatus() {
@@ -48,14 +39,14 @@ public class NowJson {
 
     public static class BasicBean {
         /**
-         * cid : CN101010100
-         * location : 北京
-         * parent_city : 北京
-         * admin_area : 北京
+         * cid : CN101040100
+         * location : 重庆
+         * parent_city : 重庆
+         * admin_area : 重庆
          * cnty : 中国
-         * lat : 39.90498734
-         * lon : 116.40528870
-         * tz : 8.0
+         * lat : 29.56376076
+         * lon : 106.55046082
+         * tz : +8.00
          */
 
         private String cid;
@@ -68,7 +59,7 @@ public class NowJson {
         private String tz;
 
         public String getCid() {
-            return cid == null ? "" : cid;
+            return cid;
         }
 
         public void setCid(String cid) {
@@ -76,7 +67,7 @@ public class NowJson {
         }
 
         public String getLocation() {
-            return location == null ? "" : location;
+            return location;
         }
 
         public void setLocation(String location) {
@@ -84,7 +75,7 @@ public class NowJson {
         }
 
         public String getParent_city() {
-            return parent_city == null ? "" : parent_city;
+            return parent_city;
         }
 
         public void setParent_city(String parent_city) {
@@ -92,7 +83,7 @@ public class NowJson {
         }
 
         public String getAdmin_area() {
-            return admin_area == null ? "" : admin_area;
+            return admin_area;
         }
 
         public void setAdmin_area(String admin_area) {
@@ -100,7 +91,7 @@ public class NowJson {
         }
 
         public String getCnty() {
-            return cnty == null ? "" : cnty;
+            return cnty;
         }
 
         public void setCnty(String cnty) {
@@ -108,7 +99,7 @@ public class NowJson {
         }
 
         public String getLat() {
-            return lat == null ? "" : lat;
+            return lat;
         }
 
         public void setLat(String lat) {
@@ -116,7 +107,7 @@ public class NowJson {
         }
 
         public String getLon() {
-            return lon == null ? "" : lon;
+            return lon;
         }
 
         public void setLon(String lon) {
@@ -124,7 +115,7 @@ public class NowJson {
         }
 
         public String getTz() {
-            return tz == null ? "" : tz;
+            return tz;
         }
 
         public void setTz(String tz) {
@@ -134,15 +125,15 @@ public class NowJson {
 
     public static class UpdateBean {
         /**
-         * loc : 2017-10-26 17:29
-         * utc : 2017-10-26 09:29
+         * loc : 2019-03-21 16:55
+         * utc : 2019-03-21 08:55
          */
 
         private String loc;
         private String utc;
 
         public String getLoc() {
-            return loc == null ? "" : loc;
+            return loc;
         }
 
         public void setLoc(String loc) {
@@ -150,7 +141,7 @@ public class NowJson {
         }
 
         public String getUtc() {
-            return utc == null ? "" : utc;
+            return utc;
         }
 
         public void setUtc(String utc) {
