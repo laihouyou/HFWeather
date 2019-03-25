@@ -242,6 +242,6 @@ public class ProvinceCityFragment extends Fragment   {
      */
     public interface OnFragmentToActivityListener {
         // TODO: Update argument type and name
-        void onFragmentToActivityPutVaule(String vaule);
+        void onFragmentToActivityPutVaule(String cityName);
     }
 }

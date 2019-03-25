@@ -15,6 +15,16 @@ public class WeatherVo {
 
     private AirNow airNow;
 
+    private String updateTime;
+
+    public String getUpdateTime() {
+        return updateTime;
+    }
+
+    public void setUpdateTime(String updateTime) {
+        this.updateTime = updateTime;
+    }
+
     public BasicBean getBasic() {
         return basic;
     }

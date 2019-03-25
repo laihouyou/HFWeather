@@ -28,4 +28,7 @@ public class WeatherUtil {
     public static final String uv="uv";
     public static final String air="air";
     public static final String ac="ac";
+
+    //天气自动更新间隔时间
+    public static final long weatherUpdateTimeInterval=4*60*60;
 }

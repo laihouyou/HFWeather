@@ -21,6 +21,7 @@ import com.gddst.app.lib_common.location.LocationInfoExt;
 import com.gddst.app.lib_common.location.LocationIntentService;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
+import com.gddst.app.lib_common.utils.DateUtil;
 import com.gddst.app.lib_common.weather.util.Keys;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.fragment.ProvinceCityFragment;
@@ -32,6 +33,7 @@ import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiFunction;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
@@ -70,6 +72,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     private boolean isLocationValue=false;
 
+    private WeatherVo newWeatherVo;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -110,7 +113,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         swipeRefres.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestWeather(weatherId);
+                requestWeather(newWeatherVo);
                 getPicImage();
             }
         });
@@ -120,6 +123,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     protected void initData() {
+        newWeatherVo=new WeatherVo();
         if (gson==null)
             gson=new Gson();
         requestPermission();
@@ -157,8 +161,14 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         } else {
             WeatherVo weatherVo = gson.fromJson(weatherVoString, WeatherVo.class);
             weatherId=weatherVo.getBasic().getCid();
-            showText(weatherVo);
             isLocationValue=true;
+            long time= DateUtil.timeSub(weatherVo.getUpdateTime(),DateUtil.getNow());
+            if (time>=WeatherUtil.weatherUpdateTimeInterval){
+                showTimeOutBefore();
+                requestWeather(weatherVo);
+            }else {
+                showText(weatherVo);
+            }
         }
 
         String picUrl = sharedPreferences.getString(WeatherUtil.picUrl, "");
@@ -176,14 +186,18 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         tv_situation.setText("暂无数据");
     }
 
+    private void showTimeOutBefore() {
+        swipeRefres.setRefreshing(true);
+        tv_title.setText("数据已过期正在更新");
+    }
+
     private void showPicImage(String picUrl) {
         Glide.with(WeatherActivity.this).load(picUrl).into(im_pic);
     }
 
-    private void requestWeather(String weatherId) {
-
+    private void requestWeather(String cityName) {
         NetManager.INSTANCE.getShopClient()
-                .getCityId(Keys.key,weatherId)
+                .getCityId(Keys.key,cityName)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<Response<ResponseBody>, String>() {
                     @Override
@@ -197,6 +211,34 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                         return getZip(
                                 getobservableNow(weatherCode),
                                 getobservableAirNow(weatherCode));
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DlObserve<WeatherVo>() {
+                    @Override
+                    public void onResponse(WeatherVo weatherVo) throws IOException {
+                        showText(weatherVo);
+                        swipeRefres.setRefreshing(false);
+                        Toast.makeText(WeatherActivity.this, weatherVo.getStatus(), Toast.LENGTH_LONG).show();
+                    }
+
+                    @Override
+                    public void onError(int errorCode, String errorMsg) {
+                        Toast.makeText(WeatherActivity.this, errorMsg, Toast.LENGTH_LONG).show();
+                        swipeRefres.setRefreshing(false);
+                    }
+                });
+
+    }
+
+    private void requestWeather(WeatherVo weatherVo) {
+        Observable.just(weatherVo)
+                .subscribeOn(Schedulers.io())
+                .flatMap(new Function<WeatherVo, ObservableSource<WeatherVo>>() {
+                    @Override
+                    public ObservableSource<WeatherVo> apply(WeatherVo weatherVo) throws Exception {
+                        return getZip(getobservableNow(weatherVo.getBasic().getCid()),
+                                getobservableAirNow(weatherVo.getBasic().getCid()));
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -288,6 +330,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     private void showText(WeatherVo weatherVo) {
         if (weatherVo == null)
             return;
+        newWeatherVo=weatherVo;
         List<WeatherVo.LifestyleBean> lifestyleVos = weatherVo.getLifestyle();
         List<WeatherVo.DailyForecastBean> weatherForecasts = weatherVo.getDaily_forecast();
         AirNow airNow = weatherVo.getAirNow();
@@ -380,6 +423,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         String status=weatherObject.getString(WeatherUtil.status);
         if (status.equals(WeatherUtil.ok)){
             WeatherVo weatherVo = gson.fromJson(weatherObject.toString(), WeatherVo.class);
+            weatherVo.setUpdateTime(DateUtil.getNow());
             return weatherVo;
         }
         return new WeatherVo();
@@ -427,18 +471,19 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     }
 
     @Override
-    public void onFragmentToActivityPutVaule(String vaule) {
+    public void onFragmentToActivityPutVaule(String cityName) {
         if (drawerLayout!=null){
             drawerLayout.closeDrawers();
         }
-        weatherId=vaule;
-        requestWeather(vaule);
+        weatherId=cityName;
+        requestWeather(cityName);
         getPicImage();
     }
 
     @Override
     protected void onMessageEvent(Object event) {
         super.onMessageEvent(event);
+        //页面启动后首次成功定位来回调此方法
         if (event instanceof LocationInfoExt&&!isLocationValue){
             LocationInfoExt locationInfoExt= (LocationInfoExt) event;
             String location=locationInfoExt.getLongitude()+","+locationInfoExt.getLatitude();
