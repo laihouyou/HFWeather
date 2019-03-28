@@ -16,12 +16,16 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import com.bumptech.glide.Glide;
+import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseActivity;
+import com.gddst.app.lib_common.base.BaseApplication;
 import com.gddst.app.lib_common.location.LocationInfoExt;
 import com.gddst.app.lib_common.location.LocationIntentService;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.utils.DateUtil;
+import com.gddst.app.lib_common.weather.db.City;
+import com.gddst.app.lib_common.weather.db.CityVo;
 import com.gddst.app.lib_common.weather.util.Keys;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.fragment.ProvinceCityFragment;
@@ -30,6 +34,8 @@ import com.gddst.lhy.weather.vo.AirNow;
 import com.gddst.lhy.weather.vo.WeatherVo;
 import com.google.gson.Gson;
 import io.reactivex.Observable;
+import io.reactivex.ObservableEmitter;
+import io.reactivex.ObservableOnSubscribe;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiFunction;
@@ -153,6 +159,8 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     private void initWeathert() {
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
+        final List<CityVo> cityVoList= BaseApplication.getIns().getDaoSession()
+                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.Id).list();
         String weatherVoString = sharedPreferences.getString(WeatherUtil.weatherVo, "");
         if (TextUtils.isEmpty(weatherVoString)) {
             //刚进来如果没有城市信息则去定位获取当前位置坐标
@@ -177,6 +185,31 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         } else {
             showPicImage(picUrl);
         }
+
+        Observable.create(new ObservableOnSubscribe<Integer>() {
+            @Override
+            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
+
+            }
+        })
+                .subscribeOn(Schedulers.io())
+                .map(new Function<Integer, List<CityVo>>() {
+                    @Override
+                    public List<CityVo> apply(Integer integer) throws Exception {
+                        return BaseApplication.getIns().getDaoSession()
+                                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.Id).list().size()>0
+                                ?BaseApplication.getIns().getDaoSession()
+                                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.Id).list()
+                                :null
+                                ;
+                    }
+                })
+                .flatMap(new Function<List<CityVo>, ObservableSource<?>>() {
+                    @Override
+                    public ObservableSource<?> apply(List<CityVo> cityVos) throws Exception {
+                        return null;
+                    }
+                })
     }
 
     private void showLocationBefore() {
