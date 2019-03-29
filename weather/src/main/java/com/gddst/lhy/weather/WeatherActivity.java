@@ -161,22 +161,18 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
         final List<CityVo> cityVoList= BaseApplication.getIns().getDaoSession()
                 .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.Id).list();
-        String weatherVoString = sharedPreferences.getString(WeatherUtil.weatherVo, "");
-        if (TextUtils.isEmpty(weatherVoString)) {
-            //刚进来如果没有城市信息则去定位获取当前位置坐标
-            isLocationValue=false;
-            showLocationBefore();
-        } else {
-            WeatherVo weatherVo = gson.fromJson(weatherVoString, WeatherVo.class);
-            weatherId=weatherVo.getBasic().getCid();
-            isLocationValue=true;
-            long time= DateUtil.timeSub(weatherVo.getUpdateTime(),DateUtil.getNow());
-            if (time>=WeatherUtil.weatherUpdateTimeInterval){
-                showTimeOutBefore();
-                requestWeather(weatherVo);
-            }else {
-                showText(weatherVo);
+        if (cityVoList.size()>0){
+            String cityId=cityVoList.get(0).getCid();
+            String weatherVoString = sharedPreferences.getString(cityId, "");
+            if (TextUtils.isEmpty(weatherVoString)) {
+                //刚进来如果没有城市信息则去定位获取当前位置坐标
+                showLocationBefore();
+            } else {
+                WeatherVoToGson(weatherVoString);
             }
+        }else {
+            //刚进来如果没有城市信息则去定位获取当前位置坐标
+            showLocationBefore();
         }
 
         String picUrl = sharedPreferences.getString(WeatherUtil.picUrl, "");
@@ -185,34 +181,23 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         } else {
             showPicImage(picUrl);
         }
+    }
 
-        Observable.create(new ObservableOnSubscribe<Integer>() {
-            @Override
-            public void subscribe(ObservableEmitter<Integer> e) throws Exception {
-
-            }
-        })
-                .subscribeOn(Schedulers.io())
-                .map(new Function<Integer, List<CityVo>>() {
-                    @Override
-                    public List<CityVo> apply(Integer integer) throws Exception {
-                        return BaseApplication.getIns().getDaoSession()
-                                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.Id).list().size()>0
-                                ?BaseApplication.getIns().getDaoSession()
-                                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.Id).list()
-                                :null
-                                ;
-                    }
-                })
-                .flatMap(new Function<List<CityVo>, ObservableSource<?>>() {
-                    @Override
-                    public ObservableSource<?> apply(List<CityVo> cityVos) throws Exception {
-                        return null;
-                    }
-                })
+    private void WeatherVoToGson(String weatherVoString) {
+        WeatherVo weatherVo = gson.fromJson(weatherVoString, WeatherVo.class);
+        weatherId=weatherVo.getBasic().getCid();
+        isLocationValue=true;
+        long time= DateUtil.timeSub(weatherVo.getUpdateTime(),DateUtil.getNow());
+        if (time>= WeatherUtil.weatherUpdateTimeInterval){
+            showTimeOutBefore();
+            requestWeather(weatherVo);
+        }else {
+            showText(weatherVo);
+        }
     }
 
     private void showLocationBefore() {
+        isLocationValue=false;
         swipeRefres.setRefreshing(true);
         tv_title.setText("正在获取当前所在城市");
         tv_Celsius.setText("暂无数据");
@@ -302,8 +287,20 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                     weatherVo.setAirNow(airNow);
                     SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
                             (WeatherActivity.this).edit();
-                    editor.putString(WeatherUtil.weatherVo, gson.toJson(weatherVo));
+                    editor.putString(weatherVo.getBasic().getCid(), gson.toJson(weatherVo));
                     editor.apply();
+
+                    //保存城市信息
+                    CityVo cityVo=new CityVo();
+                    cityVo.setCid(weatherVo.getBasic().getCid());
+                    cityVo.setLocation(weatherVo.getBasic().getLocation());
+                    cityVo.setAdmin_area(weatherVo.getBasic().getAdmin_area());
+                    cityVo.setCnty(weatherVo.getBasic().getCnty());
+                    cityVo.setLat(weatherVo.getBasic().getLat());
+                    cityVo.setLon(weatherVo.getBasic().getLon());
+                    cityVo.setParent_city(weatherVo.getBasic().getParent_city());
+                    cityVo.setTz(weatherVo.getBasic().getTz());
+                    BaseApplication.getIns().getDaoSession().getCityVoDao().insertOrReplace(cityVo);
 
                     return weatherVo;
                 }

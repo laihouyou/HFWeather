@@ -3,7 +3,7 @@ apply plugin: 'org.greenrobot.greendao' // 添加应用依赖插件
 
 android {
     compileSdkVersion build_versions.target_sdk
-
+    buildToolsVersion build_versions.build_tools
     defaultConfig {
         minSdkVersion build_versions.min_sdk
         targetSdkVersion build_versions.target_sdk
