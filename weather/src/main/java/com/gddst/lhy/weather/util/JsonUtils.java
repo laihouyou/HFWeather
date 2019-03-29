@@ -1,13 +1,20 @@
 package com.gddst.lhy.weather.util;
 
 import android.text.TextUtils;
+
 import com.gddst.app.lib_common.base.BaseApplication;
 import com.gddst.app.lib_common.weather.db.City;
 import com.gddst.app.lib_common.weather.db.County;
 import com.gddst.app.lib_common.weather.db.Province;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
+import retrofit2.Response;
 
 public class JsonUtils {
     public static boolean SaveProvince(String json)  {
@@ -71,5 +78,18 @@ public class JsonUtils {
 
         }
         return false;
+    }
+
+    public static String getCityId(Response<ResponseBody> response) throws IOException, JSONException {
+        if (response.code() != 200) {
+            return "";
+        }
+        String body = response.body().string();
+        JSONObject jsonObject = new JSONObject(body);
+        JSONArray jsonArray = jsonObject.getJSONArray(WeatherUtil.HeWeather6);
+        JSONObject weatherObject = jsonArray.getJSONObject(0);
+        JSONObject jsonObjectCity=(weatherObject.getJSONArray(WeatherUtil.basic)).getJSONObject(0);
+        String cityId = jsonObjectCity.getString(WeatherUtil.cid);
+        return cityId;
     }
 }

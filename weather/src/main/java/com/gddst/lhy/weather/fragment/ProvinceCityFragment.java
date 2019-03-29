@@ -8,8 +8,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
+
 import com.com.sky.downloader.greendao.CityDao;
 import com.com.sky.downloader.greendao.CountyDao;
 import com.gddst.app.lib_common.base.BaseApplication;
@@ -23,13 +22,18 @@ import com.gddst.lhy.weather.R;
 import com.gddst.lhy.weather.fragment.dummy.DummyContent;
 import com.gddst.lhy.weather.fragment.dummy.DummyContent.DummyItem;
 import com.gddst.lhy.weather.util.JsonUtils;
+
+import org.greenrobot.eventbus.EventBus;
+
+import java.io.IOException;
+import java.util.List;
+
+import androidx.annotation.Nullable;
+import androidx.fragment.app.Fragment;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
-
-import java.io.IOException;
-import java.util.List;
 
 public class ProvinceCityFragment extends Fragment   {
 
@@ -58,8 +62,6 @@ public class ProvinceCityFragment extends Fragment   {
 
     private String url="http://guolin.tech/api/china";
 
-    private OnFragmentToActivityListener onFragmentToActivityListener;
-
     /**
      * Mandatory empty constructor for the fragment manager to instantiate the
      * fragment (e.g. upon screen orientation changes).
@@ -80,7 +82,6 @@ public class ProvinceCityFragment extends Fragment   {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        onFragmentToActivityListener= (OnFragmentToActivityListener) getActivity();
         if (getArguments() != null) {
             mColumnCount = getArguments().getInt(ARG_COLUMN_COUNT);
         }
@@ -116,7 +117,7 @@ public class ProvinceCityFragment extends Fragment   {
                     setCountyData();
                 }
                 else if (item.dataType.equals(COUNTY)){
-                    onFragmentToActivityListener.onFragmentToActivityPutVaule(item.name);
+                    EventBus.getDefault().post(item);
                 }
             }
         });
@@ -235,13 +236,4 @@ public class ProvinceCityFragment extends Fragment   {
 
     }
 
-
-
-    /**
-     * fragment通过接口向activity传值
-     */
-    public interface OnFragmentToActivityListener {
-        // TODO: Update argument type and name
-        void onFragmentToActivityPutVaule(String cityName);
-    }
 }

@@ -18,7 +18,7 @@ public class CityVo {
      * tz : +8.00
      */
     @Id(autoincrement = true)
-    private long id;
+    private Long id;
     @Index(unique = true) // 唯一性
     private String cid;
     private String location;
@@ -28,8 +28,8 @@ public class CityVo {
     private String lat;
     private String lon;
     private String tz;
-    @Generated(hash = 1714164286)
-    public CityVo(long id, String cid, String location, String parent_city,
+    @Generated(hash = 1877701743)
+    public CityVo(Long id, String cid, String location, String parent_city,
             String admin_area, String cnty, String lat, String lon, String tz) {
         this.id = id;
         this.cid = cid;
@@ -44,10 +44,10 @@ public class CityVo {
     @Generated(hash = 54631091)
     public CityVo() {
     }
-    public long getId() {
+    public Long getId() {
         return this.id;
     }
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
     public String getCid() {

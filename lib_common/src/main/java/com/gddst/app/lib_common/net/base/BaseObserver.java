@@ -3,6 +3,7 @@ package com.gddst.app.lib_common.net.base;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.net.ParseException;
+import android.os.NetworkOnMainThreadException;
 
 import com.google.gson.JsonParseException;
 
@@ -87,7 +88,11 @@ public abstract class BaseObserver<T> extends DisposableObserver<T> {
         } else if (throwable instanceof DlException) {
             DlException dlException = (DlException) throwable;
             handleError(dlException.getErrorCode(), dlException.getErrorMessage());
-        } else {
+        }
+        else if (throwable instanceof NetworkOnMainThreadException){
+            handleError(UNKONW_EXCEPTION, "请求无法运行在主线程");
+        }
+        else {
             handleError(UNKONW_EXCEPTION, "网络异常，请稍后重试");
         }
     }
