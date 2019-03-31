@@ -17,7 +17,7 @@ public class CityVo {
      * lon : 106.55046082
      * tz : +8.00
      */
-    @Id(autoincrement = true)
+    @Id()
     private Long id;
     @Index(unique = true) // 唯一性
     private String cid;
@@ -28,9 +28,12 @@ public class CityVo {
     private String lat;
     private String lon;
     private String tz;
-    @Generated(hash = 1877701743)
+    private String addCityTime;
+    private boolean isLocationCity;
+    @Generated(hash = 719243887)
     public CityVo(Long id, String cid, String location, String parent_city,
-            String admin_area, String cnty, String lat, String lon, String tz) {
+            String admin_area, String cnty, String lat, String lon, String tz,
+            String addCityTime, boolean isLocationCity) {
         this.id = id;
         this.cid = cid;
         this.location = location;
@@ -40,6 +43,8 @@ public class CityVo {
         this.lat = lat;
         this.lon = lon;
         this.tz = tz;
+        this.addCityTime = addCityTime;
+        this.isLocationCity = isLocationCity;
     }
     @Generated(hash = 54631091)
     public CityVo() {
@@ -97,6 +102,18 @@ public class CityVo {
     }
     public void setTz(String tz) {
         this.tz = tz;
+    }
+    public boolean getIsLocationCity() {
+        return this.isLocationCity;
+    }
+    public void setIsLocationCity(boolean isLocationCity) {
+        this.isLocationCity = isLocationCity;
+    }
+    public String getAddCityTime() {
+        return this.addCityTime;
+    }
+    public void setAddCityTime(String addCityTime) {
+        this.addCityTime = addCityTime;
     }
 
 }

@@ -3,11 +3,14 @@ package com.gddst.app.lib_common.base;
 import android.app.Application;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.util.Log;
+
 import com.alibaba.android.arouter.launcher.ARouter;
 import com.com.sky.downloader.greendao.DaoMaster;
 import com.com.sky.downloader.greendao.DaoSession;
 import com.gddst.app.lib_common.constant.Constant;
 import com.gddst.app.lib_common.net.NetManager;
+import com.gddst.app.lib_common.utils.AppUtil;
 import com.gddst.app.lib_common.utils.ToastUtils;
 import com.gddst.app.lib_common.utils.Utils;
 
@@ -54,15 +57,7 @@ public class BaseApplication extends Application {
      * 初始化定位
      */
     private void initLocation() {
-//        HeConfig.init(Keys.appId,Keys.key);
-//        HeConfig.switchToFreeServerNode();
-//        Intent locationIntentServiceIntent=new Intent(this, LocationIntentService.class);
-//        locationIntentServiceIntent.setPackage(getPackageName());
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-//            startForegroundService(locationIntentServiceIntent);
-//        }else {
-//            startService(locationIntentServiceIntent);
-//        }
+        Log.i("sha1",AppUtil.sHA1(this));
     }
 
     /**

@@ -9,13 +9,13 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
-import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
+import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseApplication;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
@@ -38,10 +38,7 @@ import java.util.List;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -58,9 +55,9 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     private TextView aqi_text;
     private TextView pm25_text;
     //标题
-    private TextView tv_title;
-    private TextView tv_time;
-    private ImageView title_image;
+//    private TextView tv_title;
+//    private TextView tv_time;
+//    private ImageView title_image;
     //当日天气
     private TextView tv_Celsius;
     private TextView tv_situation;
@@ -102,10 +99,10 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         aqi_text = view.findViewById(R.id.aqi_text);
         pm25_text = view.findViewById(R.id.pm25_text);
 
-        tv_title = view.findViewById(R.id.tv_title);
-        tv_time = view.findViewById(R.id.tv_time);
-        title_image = view.findViewById(R.id.title_image);
-        title_image.setOnClickListener(this);
+//        tv_title = view.findViewById(R.id.tv_title);
+//        tv_time = view.findViewById(R.id.tv_time);
+//        title_image = view.findViewById(R.id.title_image);
+//        title_image.setOnClickListener(this);
 
         tv_Celsius = view.findViewById(R.id.tv_Celsius);
         tv_situation = view.findViewById(R.id.tv_situation);
@@ -114,7 +111,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         swipeRefres.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                requestWeather(newWeatherVo.getBasic().getCid());
+                requestWeather(newWeatherVo.getBasic().getCid(),newWeatherVo.isLocationCity());
                 getPicImage();
                 Log.i("tag","天气请求刷新++++++++++++++++++++++++++");
             }
@@ -129,7 +126,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         });
 
         day_linelayout = view.findViewById(R.id.day_linelayout);
-        tv_time = view.findViewById(R.id.tv_time);
         suggestion_linearlayout = view.findViewById(R.id.suggestion_linearlayout);
         return view;
     }
@@ -145,23 +141,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     }
 
     private void initWeathert() {
-//        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
-//        final List<CityVo> cityVoList= BaseApplication.getIns().getDaoSession()
-//                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.Id).list();
-//        if (cityVoList.size()>0){
-//            String cityId=cityVoList.get(0).getCid();
-//            String weatherVoString = sharedPreferences.getString(cityId, "");
-//            if (TextUtils.isEmpty(weatherVoString)) {
-//                //刚进来如果没有城市信息则去定位获取当前位置坐标
-//                showLocationBefore();
-//            } else {
-//                WeatherVoToGson(weatherVoString);
-//            }
-//        }else {
-//            //刚进来如果没有城市信息则去定位获取当前位置坐标
-//            showLocationBefore();
-//        }
-
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
         String cityId=this.cityCid;
         String weatherVoString = sharedPreferences.getString(cityId, "");
@@ -186,7 +165,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         long time= DateUtil.timeSub(weatherVo.getUpdateTime(),DateUtil.getNow());
         if (time>= WeatherUtil.weatherUpdateTimeInterval){
             showTimeOutBefore();
-            requestWeather(weatherVo.getBasic().getCid());
+            requestWeather(weatherVo.getBasic().getCid(),weatherVo.isLocationCity());
         }else {
             showText(weatherVo);
         }
@@ -195,29 +174,31 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     private void showLocationBefore() {
         context.isLocationValue=false;
         swipeRefres.setRefreshing(true);
-        tv_title.setText("正在获取当前所在城市");
+        context.tv_title.setText("正在获取当前所在城市");
         tv_Celsius.setText("暂无数据");
         tv_situation.setText("暂无数据");
     }
 
     private void showTimeOutBefore() {
         swipeRefres.setRefreshing(true);
-        tv_title.setText("数据已过期正在更新");
+        context.tv_title.setText("数据已过期正在更新");
     }
 
     private void showPicImage(String picUrl) {
         Glide.with(context).load(picUrl).into(context.im_pic);
     }
 
-    public void requestWeather(String cityCid) {
+    public void requestWeather(String cityCid, final boolean isLocationCity) {
         Observable.just(cityCid)
                 .subscribeOn(Schedulers.io())
                 .flatMap(new Function<String, ObservableSource<WeatherVo>>() {
                     @Override
                     public ObservableSource<WeatherVo> apply(String weatherCode) throws Exception {
                         return getZip(
-                                getobservableNow(weatherCode),
-                                getobservableAirNow(weatherCode));
+                                getobservableNow(weatherCode,isLocationCity),
+                                getobservableAirNow(weatherCode),
+                                isLocationCity
+                        );
                     }
                 })
                 .observeOn(AndroidSchedulers.mainThread())
@@ -238,35 +219,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     }
 
-
-//    private void requestWeather(WeatherVo weatherVo) {
-//        Observable.just(weatherVo)
-//                .subscribeOn(Schedulers.io())
-//                .flatMap(new Function<WeatherVo, ObservableSource<WeatherVo>>() {
-//                    @Override
-//                    public ObservableSource<WeatherVo> apply(WeatherVo weatherVo) throws Exception {
-//                        return getZip(getobservableNow(weatherVo.getBasic().getCid()),
-//                                getobservableAirNow(weatherVo.getBasic().getCid()));
-//                    }
-//                })
-//                .observeOn(AndroidSchedulers.mainThread())
-//                .subscribe(new DlObserve<WeatherVo>() {
-//                    @Override
-//                    public void onResponse(WeatherVo weatherVo) throws IOException {
-//                        showText(weatherVo);
-//                        swipeRefres.setRefreshing(false);
-//                        Toast.makeText(context, weatherVo.getStatus(), Toast.LENGTH_LONG).show();
-//                    }
-//
-//                    @Override
-//                    public void onError(int errorCode, String errorMsg) {
-//                        Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show();
-//                        swipeRefres.setRefreshing(false);
-//                    }
-//                });
-//    }
-
-    private Observable getZip(Observable observableNow, Observable observableAirNow){
+    private Observable getZip(Observable observableNow, Observable observableAirNow, final boolean isLocationCity){
         return Observable.zip(observableNow, observableAirNow, new BiFunction() {
             @Override
             public Object apply(Object o, Object o2) throws Exception {
@@ -289,7 +242,13 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                     cityVo.setLon(weatherVo.getBasic().getLon());
                     cityVo.setParent_city(weatherVo.getBasic().getParent_city());
                     cityVo.setTz(weatherVo.getBasic().getTz());
-                    BaseApplication.getIns().getDaoSession().getCityVoDao().save(cityVo);
+//                    cityVo.setUpdateTime(DateUtil.getNow());
+                    cityVo.setIsLocationCity(isLocationCity);
+                    List<CityVo> cityVoList= BaseApplication.getIns().getDaoSession().getCityVoDao()
+                            .queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
+                    if (cityVoList.size()==0){
+                        BaseApplication.getIns().getDaoSession().getCityVoDao().insertOrReplace(cityVo);
+                    }
                     return weatherVo;
                 }
                 return new WeatherVo();
@@ -298,13 +257,13 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     }
 
-    private Observable getobservableNow(String weatherId){
+    private Observable getobservableNow(String weatherId, final boolean isLocationCity){
         return NetManager.INSTANCE.getShopClient()
                 .getWeatherNow(Keys.key, weatherId)
                 .map(new Function<Response<ResponseBody>, WeatherVo>() {
                     @Override
                     public WeatherVo apply(Response<ResponseBody> response) throws Exception {
-                        return ResponseToWeatherVo(response, gson);
+                        return ResponseToWeatherVo(response, gson,isLocationCity);
                     }
                 });
     }
@@ -314,7 +273,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                 .map(new Function<Response<ResponseBody>, AirNow>() {
                     @Override
                     public AirNow apply(Response<ResponseBody> response) throws Exception {
-                        return ResponseToAirNow(response, gson);
+                        AirNow airNow=ResponseToAirNow(response, gson);
+                        return airNow;
                     }
                 });
 
@@ -424,13 +384,13 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             tv_situation.setText(now.getCond_txt());
         }
 
-        tv_title.setText(weatherVo.getBasic().getLocation());
-        String timeStr=weatherVo.getUpdate().getLoc().split(" ")[1];
-        tv_time.setText(timeStr);
+//        context.tv_title.setText(weatherVo.getBasic().getLocation());
+//        String timeStr=weatherVo.getUpdate().getLoc().split(" ")[1];
+//        context.tv_time.setText(timeStr);
     }
 
 
-    private WeatherVo ResponseToWeatherVo(Response<ResponseBody> response, Gson gson) throws IOException, JSONException {
+    private WeatherVo ResponseToWeatherVo(Response<ResponseBody> response, Gson gson,boolean isLocationCity) throws IOException, JSONException {
         if (response.code() != 200 || gson == null) {
             return new WeatherVo();
         }
@@ -442,6 +402,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         if (status.equals(WeatherUtil.ok)){
             WeatherVo weatherVo = gson.fromJson(weatherObject.toString(), WeatherVo.class);
             weatherVo.setUpdateTime(DateUtil.getNow());
+            weatherVo.setLocationCity(isLocationCity);
             return weatherVo;
         }
         return new WeatherVo();
@@ -466,14 +427,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.title_image) {
-            ProvinceCityFragment fragment = new ProvinceCityFragment();
-            FragmentManager fragmentManager = context.getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.fragment, fragment);
-            fragmentTransaction.commit();
-            context.drawerLayout.openDrawer(GravityCompat.START);
-        }
+
     }
 
 

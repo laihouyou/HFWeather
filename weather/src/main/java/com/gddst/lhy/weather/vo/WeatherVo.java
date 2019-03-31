@@ -7,6 +7,7 @@ public class WeatherVo {
 
     private BasicBean basic;
     private UpdateBean update;
+    private boolean isLocationCity;
     private String status;
     private NowBean now;
     private List<DailyForecastBean> daily_forecast;
@@ -14,6 +15,14 @@ public class WeatherVo {
     private List<LifestyleBean> lifestyle;
 
     private AirNow airNow;
+
+    public boolean isLocationCity() {
+        return isLocationCity;
+    }
+
+    public void setLocationCity(boolean locationCity) {
+        isLocationCity = locationCity;
+    }
 
     private String updateTime;
 

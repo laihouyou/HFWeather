@@ -18,30 +18,41 @@
             android:scaleType="centerCrop"
     />
 
+    <include
+        android:id="@+id/include"
+        layout="@layout/titel"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/dp_50"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+    </include>
+
     <androidx.drawerlayout.widget.DrawerLayout
-            android:id="@+id/drawerLayout"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-    >
+        android:id="@+id/drawerLayout"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/include"
+        app:layout_constraintVertical_bias="0.66999996">
 
-        <!--<androidx.swiperefreshlayout.widget.SwipeRefreshLayout-->
-                <!--android:id="@+id/swipeRefres"-->
-                <!--android:layout_width="match_parent"-->
-                <!--android:layout_height="match_parent"-->
-        <!--&gt;-->
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/viewpager_weather"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
+        <androidx.viewpager.widget.ViewPager
+        android:id="@+id/viewpager_weather"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
 
-            </androidx.viewpager.widget.ViewPager>
-        <!--</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>-->
+        </androidx.viewpager.widget.ViewPager>
 
         <FrameLayout
-                android:id="@+id/fragment"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:layout_gravity = "start"
+        android:id="@+id/fragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_gravity="start"
         >
         </FrameLayout>
 
