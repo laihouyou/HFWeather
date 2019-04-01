@@ -27,8 +27,8 @@ import com.gddst.lhy.weather.WeatherActivity;
 import com.gddst.lhy.weather.util.WeatherUtil;
 import com.gddst.lhy.weather.vo.AirNow;
 import com.gddst.lhy.weather.vo.WeatherVo;
-import com.google.gson.Gson;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -66,8 +66,6 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     private LinearLayout day_linelayout;
     private LinearLayout suggestion_linearlayout;
-
-    private Gson gson;
 
     private WeatherVo newWeatherVo;
 
@@ -135,13 +133,12 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         newWeatherVo=new WeatherVo();
-        if (gson==null)
-            gson=new Gson();
         initWeathert();
     }
 
     private void initWeathert() {
-        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(context);
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(BaseApplication.getIns());
         String cityId=this.cityCid;
         String weatherVoString = sharedPreferences.getString(cityId, "");
         if (TextUtils.isEmpty(weatherVoString)) {
@@ -160,7 +157,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     }
 
     private void WeatherVoToGson(String weatherVoString) {
-        WeatherVo weatherVo = gson.fromJson(weatherVoString, WeatherVo.class);
+        WeatherVo weatherVo = BaseApplication.getGson().fromJson(weatherVoString, WeatherVo.class);
         context.isLocationValue=true;
         long time= DateUtil.timeSub(weatherVo.getUpdateTime(),DateUtil.getNow());
         if (time>= WeatherUtil.weatherUpdateTimeInterval){
@@ -168,6 +165,10 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             requestWeather(weatherVo.getBasic().getCid(),weatherVo.isLocationCity());
         }else {
             showText(weatherVo);
+            //如果是数据过期，需要在这里设置一下城市名称
+            context.tv_title.setText(weatherVo.getBasic().getLocation());
+            String timeStr = weatherVo.getUpdate().getLoc().split(" ")[1];
+            context.tv_time.setText(timeStr);
         }
     }
 
@@ -188,8 +189,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         Glide.with(context).load(picUrl).into(context.im_pic);
     }
 
-    public void requestWeather(String cityCid, final boolean isLocationCity) {
-        Observable.just(cityCid)
+    public  Observable getWeatherObservable(String cityCid, final boolean isLocationCity){
+        return  Observable.just(cityCid)
                 .subscribeOn(Schedulers.io())
                 .flatMap(new Function<String, ObservableSource<WeatherVo>>() {
                     @Override
@@ -200,7 +201,11 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                                 isLocationCity
                         );
                     }
-                })
+                });
+    }
+
+    public void requestWeather(String cityCid, final boolean isLocationCity) {
+       getWeatherObservable(cityCid,isLocationCity)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new DlObserve<WeatherVo>() {
                     @Override
@@ -227,9 +232,9 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                     WeatherVo weatherVo= (WeatherVo) o;
                     AirNow airNow= (AirNow) o2;
                     weatherVo.setAirNow(airNow);
-                    SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
-                            (context).edit();
-                    editor.putString(weatherVo.getBasic().getCid(), gson.toJson(weatherVo));
+                    SharedPreferences.Editor editor = PreferenceManager
+                            .getDefaultSharedPreferences(BaseApplication.getIns()).edit();
+                    editor.putString(weatherVo.getBasic().getCid(), BaseApplication.getGson().toJson(weatherVo));
                     editor.apply();
 
                     //保存城市信息
@@ -248,6 +253,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                             .queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
                     if (cityVoList.size()==0){
                         BaseApplication.getIns().getDaoSession().getCityVoDao().insertOrReplace(cityVo);
+                        //数据插入成功发送
+                        EventBus.getDefault().post(cityVo);
                     }
                     return weatherVo;
                 }
@@ -263,7 +270,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                 .map(new Function<Response<ResponseBody>, WeatherVo>() {
                     @Override
                     public WeatherVo apply(Response<ResponseBody> response) throws Exception {
-                        return ResponseToWeatherVo(response, gson,isLocationCity);
+                        return ResponseToWeatherVo(response,isLocationCity);
                     }
                 });
     }
@@ -273,7 +280,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                 .map(new Function<Response<ResponseBody>, AirNow>() {
                     @Override
                     public AirNow apply(Response<ResponseBody> response) throws Exception {
-                        AirNow airNow=ResponseToAirNow(response, gson);
+                        AirNow airNow=ResponseToAirNow(response);
                         return airNow;
                     }
                 });
@@ -291,7 +298,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                         if (s.code() == 200) {
                             String picUrl = s.body().string();
                             SharedPreferences.Editor editor = PreferenceManager.getDefaultSharedPreferences
-                                    (context).edit();
+                                    (BaseApplication.getIns()).edit();
                             editor.putString(WeatherUtil.picUrl, picUrl);
                             editor.apply();
                             showPicImage(picUrl);
@@ -390,8 +397,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     }
 
 
-    private WeatherVo ResponseToWeatherVo(Response<ResponseBody> response, Gson gson,boolean isLocationCity) throws IOException, JSONException {
-        if (response.code() != 200 || gson == null) {
+    private WeatherVo ResponseToWeatherVo(Response<ResponseBody> response,boolean isLocationCity) throws IOException, JSONException {
+        if (response.code() != 200 ) {
             return new WeatherVo();
         }
         String body = response.body().string();
@@ -400,7 +407,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         JSONObject weatherObject = jsonArray.getJSONObject(0);
         String status=weatherObject.getString(WeatherUtil.status);
         if (status.equals(WeatherUtil.ok)){
-            WeatherVo weatherVo = gson.fromJson(weatherObject.toString(), WeatherVo.class);
+            WeatherVo weatherVo = BaseApplication.getGson().fromJson(weatherObject.toString(), WeatherVo.class);
             weatherVo.setUpdateTime(DateUtil.getNow());
             weatherVo.setLocationCity(isLocationCity);
             return weatherVo;
@@ -408,8 +415,8 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         return new WeatherVo();
     }
 
-    private AirNow ResponseToAirNow(Response<ResponseBody> response, Gson gson) throws IOException, JSONException {
-        if (response.code() != 200 || gson == null) {
+    private AirNow ResponseToAirNow(Response<ResponseBody> response) throws IOException, JSONException {
+        if (response.code() != 200 ) {
             return new AirNow();
         }
         String body = response.body().string();
@@ -418,7 +425,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         JSONObject weatherObject = jsonArray.getJSONObject(0);
         String status=weatherObject.getString(WeatherUtil.status);
         if (status.equals(WeatherUtil.ok)){
-            AirNow airNow = gson.fromJson(weatherObject.getJSONObject(WeatherUtil.air_now_city).toString(), AirNow.class);
+            AirNow airNow = BaseApplication.getGson().fromJson(weatherObject.getJSONObject(WeatherUtil.air_now_city).toString(), AirNow.class);
             return airNow;
         }
         return new AirNow();

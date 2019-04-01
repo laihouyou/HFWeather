@@ -13,6 +13,7 @@ import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.utils.AppUtil;
 import com.gddst.app.lib_common.utils.ToastUtils;
 import com.gddst.app.lib_common.utils.Utils;
+import com.google.gson.Gson;
 
 /**
  * 要想使用BaseApplication，必须在组件中实现自己的Application，并且继承BaseApplication；
@@ -34,6 +35,7 @@ public class BaseApplication extends Application {
     private SharedPreferences.Editor pEditor; // sharedpreferred数据提交
 
     private static DaoSession daoSession;
+    private static Gson gson;
 
     public static BaseApplication getIns() {
         return sInstance;
@@ -126,5 +128,10 @@ public class BaseApplication extends Application {
         return pPrefere.getString(Constant.SPF_PHONE_IMEI, "");
     }
 
-
+    public static Gson getGson() {
+        if (gson==null){
+            gson=new Gson();
+        }
+        return gson;
+    }
 }

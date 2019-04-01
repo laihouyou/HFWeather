@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.com.sky.downloader.greendao.CityVoDao;
@@ -39,6 +40,7 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.viewpager.widget.ViewPager;
+import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -51,6 +53,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     public TextView tv_title;
     public TextView tv_time;
     public ImageView title_image;
+    public LinearLayout linelayout_indicator;
 
     public boolean isLocationValue=false;
 
@@ -58,6 +61,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     private WeatherAdapter weatherAdapter;
     private List<WeatherFragment> weatherFragmentList;
     private List<CityVo> cityVoList;
+    private int enabledNum=0;   //指示灯当前显示位置
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,6 +84,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         title_image = findViewById(R.id.title_image);
         title_image.setOnClickListener(this);
         tv_time = findViewById(R.id.tv_time);
+        linelayout_indicator = findViewById(R.id.linelayout_indicator);
     }
 
     @Override
@@ -100,6 +105,17 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             WeatherFragment weatherFragment=WeatherFragment.getFragment(cityVoList.get(i).getCid());
             weatherFragmentList.add(weatherFragment);
 
+            //创建指示器
+            ImageView imageView=new ImageView(this);
+            imageView.setBackgroundResource(R.drawable.background);
+            imageView.setEnabled(false);
+
+            LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(15,15);
+            if (i!=0){
+                layoutParams.leftMargin=10;
+            }
+            linelayout_indicator.addView(imageView,layoutParams);
+
             CityVo cityVo=cityVoList.get(i);
             if (cityVo.getIsLocationCity()){
                 currentItem=i;
@@ -109,6 +125,13 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         weatherAdapter.notifyDataSetChanged();
         weatherViewPager.setCurrentItem(currentItem);
         showCityName(cityVoList.get(currentItem).getCid());
+
+        //设置当只有一个城市的时候不显示指示器
+        if (cityVoList.size()==1){
+            linelayout_indicator.setVisibility(View.GONE);
+        }else {
+            linelayout_indicator.setVisibility(View.VISIBLE);
+        }
     }
 
     private void showCityName(String cityId) {
@@ -159,8 +182,16 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     public void onPageSelected(int position) {
-        CityVo cityVo=cityVoList.get(position);
-        showCityName(cityVo.getCid());
+        if (cityVoList.size()>position){
+            CityVo cityVo=cityVoList.get(position);
+            showCityName(cityVo.getCid());
+        }
+
+        if (linelayout_indicator.getChildCount()>position){
+            linelayout_indicator.getChildAt(enabledNum).setEnabled(false);
+            linelayout_indicator.getChildAt(position).setEnabled(true);
+            enabledNum=position;
+        }
     }
 
     @Override
@@ -209,9 +240,17 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             //这里需要通过城市名字去拿城市id
             getCityId(cityName,false);
         }
+        else if (event instanceof CityVo ){
+            //插入成功后查询数据库并将数据源发送出去
+            List<CityVo> cityVos=BaseApplication.getIns().getDaoSession().getCityVoDao()
+                    .queryBuilder().list();
+            cityVoList.clear();
+            cityVoList.addAll(cityVos);
+        }
     }
 
-    private void getCityId(String cityName, final boolean isLocationCity) {
+    private void getCityId(final String cityName, final boolean isLocationCity) {
+        final WeatherFragment[] weatherFragment = new WeatherFragment[1];
         NetManager.INSTANCE.getShopClient()
                 .getCityId(Keys.key,cityName)
                 .subscribeOn(Schedulers.io())
@@ -221,15 +260,25 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                         return JsonUtils.getCityId(response);
                     }
                 })
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribe(new DlObserve<String>() {
+                .flatMap(new Function<String, ObservableSource<WeatherVo>>() {
                     @Override
-                    public void onResponse(String s) throws IOException {
-                        WeatherFragment weatherFragment=WeatherFragment.getFragment(s);
-                        weatherFragmentList.add(weatherFragment);
+                    public ObservableSource<WeatherVo> apply(String s) throws Exception {
+                        weatherFragment[0] =WeatherFragment.getFragment(s);
+                        return weatherFragment[0].getWeatherObservable(s,isLocationCity);
+                    }
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(new DlObserve<WeatherVo>() {
+                    @Override
+                    public void onResponse(WeatherVo weatherVo) throws IOException {
+//                        WeatherFragment weatherFragment=WeatherFragment.getFragment(s);
+//                        weatherFragmentList.add(weatherFragment);
+//                        weatherAdapter.notifyDataSetChanged();
+
+                        weatherFragmentList.add(weatherFragment[0]);
                         weatherAdapter.notifyDataSetChanged();
-                        weatherViewPager.setCurrentItem(weatherFragmentList.indexOf(weatherFragment));
-                        weatherFragment.requestWeather(s,isLocationCity);
+                        weatherViewPager.setCurrentItem(weatherFragmentList.indexOf(weatherFragment[0]));
+                        weatherFragment[0].requestWeather(weatherVo.getBasic().getCid(),weatherVo.isLocationCity());
                     }
 
                     @Override
