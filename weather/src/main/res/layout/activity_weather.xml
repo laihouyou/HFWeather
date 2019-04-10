@@ -8,7 +8,6 @@
     tools:context=".WeatherActivity">
 
     <ImageView
-        android:visibility="gone"
         android:id="@+id/im_pic"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -43,13 +42,19 @@
         app:layout_constraintTop_toBottomOf="@+id/guideline3"
         app:layout_constraintVertical_bias="0.66999996"
         >
-
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/viewpager_weather"
+        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="match_parent"
+            android:id="@+id/swipeRefres"
+            >
+            <androidx.viewpager.widget.ViewPager
+                android:id="@+id/viewpager_weather"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
 
-        </androidx.viewpager.widget.ViewPager>
+            </androidx.viewpager.widget.ViewPager>
+        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 
         <FrameLayout
             android:id="@+id/fragment"

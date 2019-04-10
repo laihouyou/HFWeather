@@ -4,7 +4,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +16,7 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseApplication;
+import com.gddst.app.lib_common.base.BaseFragment;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.utils.DateUtil;
@@ -36,10 +36,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.fragment.app.Fragment;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -49,15 +45,11 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
-public class WeatherFragment extends Fragment implements View.OnClickListener{
-    private SwipeRefreshLayout swipeRefres;
+public class WeatherFragment extends BaseFragment {
+//    private SwipeRefreshLayout swipeRefres;
     //空气质量aqi
     private TextView aqi_text;
     private TextView pm25_text;
-    //标题
-//    private TextView tv_title;
-//    private TextView tv_time;
-//    private ImageView title_image;
     //当日天气
     private TextView tv_Celsius;
     private TextView tv_situation;
@@ -67,7 +59,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     private LinearLayout day_linelayout;
     private LinearLayout suggestion_linearlayout;
 
-    private WeatherVo newWeatherVo;
+//    private WeatherVo newWeatherVo;
 
     private WeatherActivity context;
 
@@ -82,59 +74,54 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     }
 
     @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (getArguments()!=null){
-            cityCid=getArguments().getString(WeatherUtil.cid);
-        }
+    protected View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+        context= (WeatherActivity) getActivity();
+        return getLayoutInflater().inflate(R.layout.fragment_weather_layout,container,false);
     }
 
-    @Nullable
     @Override
-    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        context= (WeatherActivity) getActivity();
-        View view=getLayoutInflater().inflate(R.layout.fragment_weather_layout,container,false);
+    protected void initView(View view) {
         aqi_text = view.findViewById(R.id.aqi_text);
         pm25_text = view.findViewById(R.id.pm25_text);
-
-//        tv_title = view.findViewById(R.id.tv_title);
-//        tv_time = view.findViewById(R.id.tv_time);
-//        title_image = view.findViewById(R.id.title_image);
-//        title_image.setOnClickListener(this);
 
         tv_Celsius = view.findViewById(R.id.tv_Celsius);
         tv_situation = view.findViewById(R.id.tv_situation);
 
-        swipeRefres = view.findViewById(R.id.swipeRefres);
-        swipeRefres.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-            @Override
-            public void onRefresh() {
-                requestWeather(newWeatherVo.getBasic().getCid(),newWeatherVo.isLocationCity());
-                getPicImage();
-                Log.i("tag","天气请求刷新++++++++++++++++++++++++++");
-            }
-        });
+//        swipeRefres = view.findViewById(R.id.swipeRefres);
+//        swipeRefres.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+//            @Override
+//            public void onRefresh() {
+//                requestWeather(newWeatherVo.getBasic().getCid(),newWeatherVo.isLocationCity());
+//                getPicImage();
+//                Log.i("tag","天气请求刷新++++++++++++++++++++++++++");
+//            }
+//        });
 
         scrollView = view.findViewById(R.id.scrollView);
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {
             @Override
             public void onScrollChanged() {
-                swipeRefres.setEnabled(scrollView.getScrollY() == 0);
+                context.swipeRefres.setEnabled(scrollView.getScrollY() == 0);
             }
         });
 
         day_linelayout = view.findViewById(R.id.day_linelayout);
         suggestion_linearlayout = view.findViewById(R.id.suggestion_linearlayout);
-        return view;
     }
-
 
     @Override
-    public void onActivityCreated(@Nullable Bundle savedInstanceState) {
-        super.onActivityCreated(savedInstanceState);
-        newWeatherVo=new WeatherVo();
+    protected void initListener() {
+
+    }
+
+    @Override
+    protected void lazyLoad() {
+        if (getArguments()!=null){
+            cityCid=getArguments().getString(WeatherUtil.cid);
+        }
         initWeathert();
     }
+
 
     private void initWeathert() {
         SharedPreferences sharedPreferences = PreferenceManager
@@ -163,25 +150,22 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         if (time>= WeatherUtil.weatherUpdateTimeInterval){
             showTimeOutBefore();
             requestWeather(weatherVo.getBasic().getCid(),weatherVo.isLocationCity());
+
         }else {
             showText(weatherVo);
-            //如果是数据过期，需要在这里设置一下城市名称
-            context.tv_title.setText(weatherVo.getBasic().getLocation());
-            String timeStr = weatherVo.getUpdate().getLoc().split(" ")[1];
-            context.tv_time.setText(timeStr);
         }
     }
 
     private void showLocationBefore() {
-        context.isLocationValue=false;
-        swipeRefres.setRefreshing(true);
-        context.tv_title.setText("正在获取当前所在城市");
+//        context.isLocationValue=false;
+//        context.tv_title.setText("正在获取当前所在城市");
+//        context.swipeRefres.setRefreshing(true);
         tv_Celsius.setText("暂无数据");
         tv_situation.setText("暂无数据");
     }
 
     private void showTimeOutBefore() {
-        swipeRefres.setRefreshing(true);
+        context.swipeRefres.setRefreshing(true);
         context.tv_title.setText("数据已过期正在更新");
     }
 
@@ -211,14 +195,14 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
                     @Override
                     public void onResponse(WeatherVo weatherVo) throws IOException {
                         showText(weatherVo);
-                        swipeRefres.setRefreshing(false);
+                        context.swipeRefres.setRefreshing(false);
                         Toast.makeText(context, weatherVo.getStatus(), Toast.LENGTH_LONG).show();
                     }
 
                     @Override
                     public void onError(int errorCode, String errorMsg) {
                         Toast.makeText(context, errorMsg, Toast.LENGTH_LONG).show();
-                        swipeRefres.setRefreshing(false);
+                        context.swipeRefres.setRefreshing(false);
                     }
                 });
 
@@ -287,7 +271,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
 
     }
 
-    private void getPicImage() {
+    public void getPicImage() {
         NetManager.INSTANCE.getShopClient()
                 .getPicUrl()
                 .subscribeOn(Schedulers.io())
@@ -315,7 +299,7 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
     private void showText(WeatherVo weatherVo) {
         if (weatherVo == null)
             return;
-        newWeatherVo=weatherVo;
+//        context.newWeatherVo=weatherVo;
         List<WeatherVo.LifestyleBean> lifestyleVos = weatherVo.getLifestyle();
         List<WeatherVo.DailyForecastBean> weatherForecasts = weatherVo.getDaily_forecast();
         AirNow airNow = weatherVo.getAirNow();
@@ -391,9 +375,9 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
             tv_situation.setText(now.getCond_txt());
         }
 
-//        context.tv_title.setText(weatherVo.getBasic().getLocation());
-//        String timeStr=weatherVo.getUpdate().getLoc().split(" ")[1];
-//        context.tv_time.setText(timeStr);
+        context.tv_title.setText(weatherVo.getBasic().getLocation());
+        String timeStr=weatherVo.getUpdate().getLoc().split(" ")[1];
+        context.tv_time.setText(timeStr);
     }
 
 
@@ -430,12 +414,5 @@ public class WeatherFragment extends Fragment implements View.OnClickListener{
         }
         return new AirNow();
     }
-
-
-    @Override
-    public void onClick(View v) {
-
-    }
-
 
 }
