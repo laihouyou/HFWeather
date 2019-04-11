@@ -7,6 +7,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
@@ -22,6 +23,7 @@ import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.weather.db.CityVo;
 import com.gddst.app.lib_common.weather.util.Keys;
+import com.gddst.app.lib_common.widgets.MySwipeRefreshLayout;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.fragment.ProvinceCityFragment;
 import com.gddst.lhy.weather.fragment.WeatherFragment;
@@ -51,7 +53,7 @@ import retrofit2.Response;
 
 public class WeatherActivity extends BaseActivity implements View.OnClickListener,ViewPager.OnPageChangeListener{
     public DrawerLayout drawerLayout;
-    public SwipeRefreshLayout swipeRefres;
+    public MySwipeRefreshLayout swipeRefres;
     public ImageView im_pic;
     public TextView tv_title;
     public TextView tv_time;
@@ -159,12 +161,21 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     private void createImage(boolean isFirst,boolean isEnabled) {
         //创建指示器
         ImageView imageView=new ImageView(this);
-        imageView.setBackgroundResource(R.drawable.background);
-        imageView.setEnabled(isEnabled);
 
         LinearLayout.LayoutParams layoutParams=new LinearLayout.LayoutParams(15,15);
+        layoutParams.gravity= Gravity.CENTER;
         if (!isFirst){
             layoutParams.leftMargin=10;
+            imageView.setBackgroundResource(R.drawable.background);
+            imageView.setEnabled(isEnabled);
+        }else {
+            layoutParams.width=25;
+            layoutParams.height= 25;
+            if(isEnabled){
+                imageView.setBackgroundResource(R.drawable.location_white);
+            }else {
+                imageView.setBackgroundResource(R.drawable.location_black);
+            }
         }
         linelayout_indicator.addView(imageView,layoutParams);
     }
@@ -214,20 +225,26 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         Log.i("tag",position+"");
         newWeatherFragment=weatherFragmentList.get(position);
-        cityVo=cityVoList.get(position);
+//        cityVo=cityVoList.get(position);
     }
 
     @Override
     public void onPageSelected(int position) {
         if (cityVoList.size()>position){
-            CityVo cityVo=cityVoList.get(position);
+            cityVo=cityVoList.get(position);
             showCityName(cityVo.getCid());
         }
 
         if (linelayout_indicator.getChildCount()>position){
             linelayout_indicator.getChildAt(enabledNum).setEnabled(false);
-            linelayout_indicator.getChildAt(position).setEnabled(true);
             enabledNum=position;
+            if (position==0){
+                linelayout_indicator.getChildAt(position).setEnabled(true);
+                linelayout_indicator.getChildAt(position).setBackgroundResource(R.drawable.location_white);
+            }else {
+                linelayout_indicator.getChildAt(position).setEnabled(true);
+                linelayout_indicator.getChildAt(0).setBackgroundResource(R.drawable.location_black);
+            }
         }
 
         if (weatherFragmentList.size()>position){

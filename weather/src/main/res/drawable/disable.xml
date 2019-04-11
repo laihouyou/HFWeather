@@ -2,7 +2,7 @@
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="oval">
     <!--白色-->
-    <solid android:color="#ffb1b1b1" />
+    <solid android:color="#707070" />
     <!--半径-->
     <corners android:radius="10dp" />
 

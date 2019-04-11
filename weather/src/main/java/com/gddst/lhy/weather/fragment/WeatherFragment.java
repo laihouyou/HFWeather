@@ -9,7 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver;
 import android.widget.LinearLayout;
-import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -36,6 +35,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.List;
 
+import androidx.core.widget.NestedScrollView;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -54,7 +54,7 @@ public class WeatherFragment extends BaseFragment {
     private TextView tv_Celsius;
     private TextView tv_situation;
 
-    private ScrollView scrollView;
+    private NestedScrollView scrollView;
 
     private LinearLayout day_linelayout;
     private LinearLayout suggestion_linearlayout;
@@ -86,16 +86,6 @@ public class WeatherFragment extends BaseFragment {
 
         tv_Celsius = view.findViewById(R.id.tv_Celsius);
         tv_situation = view.findViewById(R.id.tv_situation);
-
-//        swipeRefres = view.findViewById(R.id.swipeRefres);
-//        swipeRefres.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-//            @Override
-//            public void onRefresh() {
-//                requestWeather(newWeatherVo.getBasic().getCid(),newWeatherVo.isLocationCity());
-//                getPicImage();
-//                Log.i("tag","天气请求刷新++++++++++++++++++++++++++");
-//            }
-//        });
 
         scrollView = view.findViewById(R.id.scrollView);
         scrollView.getViewTreeObserver().addOnScrollChangedListener(new ViewTreeObserver.OnScrollChangedListener() {

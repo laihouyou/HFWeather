@@ -19,19 +19,6 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="1.0" />
 
-    <!--<include-->
-    <!--android:id="@+id/include"-->
-    <!--layout="@layout/titel"-->
-    <!--android:layout_width="match_parent"-->
-    <!--android:layout_height="@dimen/dp_50"-->
-    <!--app:layout_constraintBottom_toBottomOf="parent"-->
-    <!--app:layout_constraintEnd_toEndOf="parent"-->
-    <!--app:layout_constraintStart_toStartOf="parent"-->
-    <!--app:layout_constraintTop_toTopOf="parent"-->
-    <!--app:layout_constraintVertical_bias="0.0">-->
-
-    <!--</include>-->
-
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawerLayout"
         android:layout_width="@dimen/dp_0"
@@ -42,7 +29,7 @@
         app:layout_constraintTop_toBottomOf="@+id/guideline3"
         app:layout_constraintVertical_bias="0.66999996"
         >
-        <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+        <com.gddst.app.lib_common.widgets.MySwipeRefreshLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/swipeRefres"
@@ -53,7 +40,7 @@
                 android:layout_height="match_parent">
 
             </androidx.viewpager.widget.ViewPager>
-        </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+        </com.gddst.app.lib_common.widgets.MySwipeRefreshLayout>
 
 
         <FrameLayout
