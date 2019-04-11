@@ -59,7 +59,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     public TextView tv_time;
     public ImageView title_image;
     public LinearLayout linelayout_indicator;
-//    public WeatherVo newWeatherVo;
 
     public boolean isLocationValue=false;
 
@@ -103,8 +102,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                 Log.i("tag","天气请求刷新++++++++++++++++++++++++++");
             }
         });
-
-
     }
 
     @Override
@@ -224,8 +221,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         Log.i("tag",position+"");
-        newWeatherFragment=weatherFragmentList.get(position);
-//        cityVo=cityVoList.get(position);
     }
 
     @Override
@@ -323,7 +318,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     }
 
     private void getCityId(final String cityName, final boolean isLocationCity) {
-//        final WeatherFragment[] weatherFragment = new WeatherFragment[1];
         NetManager.INSTANCE.getShopClient()
                 .getCityId(Keys.key,cityName)
                 .subscribeOn(Schedulers.io())
@@ -333,13 +327,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                         return JsonUtils.getCityId(response);
                     }
                 })
-//                .flatMap(new Function<String, ObservableSource<WeatherVo>>() {
-//                    @Override
-//                    public ObservableSource<WeatherVo> apply(String s) throws Exception {
-//                        weatherFragment[0] =WeatherFragment.getFragment(s);
-//                        return weatherFragment[0].getWeatherObservable(s,isLocationCity);
-//                    }
-//                })
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new DlObserve<String>() {
                     @Override
@@ -351,10 +338,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
                         weatherFragment.requestWeather(s,isLocationCity);
 
-//                        weatherFragmentList.add(weatherFragment[0]);
-//                        weatherAdapter.notifyDataSetChanged();
-//                        weatherViewPager.setCurrentItem(weatherFragmentList.indexOf(weatherFragment[0]));
-//                        weatherFragment[0].requestWeather(weatherVo.getBasic().getCid(),weatherVo.isLocationCity());
                     }
 
                     @Override
