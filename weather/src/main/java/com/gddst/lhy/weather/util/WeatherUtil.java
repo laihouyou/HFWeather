@@ -2,6 +2,8 @@ package com.gddst.lhy.weather.util;
 
 public class WeatherUtil {
     public static final String weatherVo="weatherVo";
+    public static final String weather="weather_";
+    public static final String drawable="drawable";
     public static final String nowBase="nowBase";
     public static final String forecastBaseList="forecastBaseList";
     public static final String airNowCity="airNowCity";
@@ -14,6 +16,7 @@ public class WeatherUtil {
     public static final String lifestyle="lifestyle";
     public static final String basic="basic";
     public static final String cid="cid";
+    public static final String cityVoList="cityVoList";
     public static final String picUrl="picUrl";
     public static final String status="status";
     public static final String ok="ok";
@@ -31,4 +34,9 @@ public class WeatherUtil {
 
     //天气自动更新间隔时间
     public static final long weatherUpdateTimeInterval=1*60;
+
+    //定位城市类型
+    public static final int city_location=1;
+    //城市管理选择的城市类型
+    public static final int city_select=2;
 }

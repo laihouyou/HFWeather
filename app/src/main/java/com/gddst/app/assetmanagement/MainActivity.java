@@ -4,12 +4,15 @@ import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import androidx.annotation.Nullable;
-import androidx.appcompat.widget.Toolbar;
+import android.widget.Toast;
+
 import com.gddst.app.lib_common.base.BaseActivity;
+import com.gddst.app.lib_common.widgets.QRCodeActivity;
 import com.gddst.lhy.weather.WeatherActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.snackbar.Snackbar;
+
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.Toolbar;
 
 public class MainActivity extends BaseActivity {
     private static final  int CODE=52514;
@@ -26,15 +29,19 @@ public class MainActivity extends BaseActivity {
 //        RxPermissionsUtil.requestEachRxPermission(
 //                this,
 //                Manifest.permission.CAMERA,
-//                Manifest.permission.ACCESS_COARSE_LOCATION
+//                Manifest.permission.ACCESS_COARSE_LOCATION,
+//                Manifest.permission.VIBRATE
 //        );
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
 
+                //二维码
+//                Intent intent=new Intent(MainActivity.this, QRCodeActivity.class);
+//                startActivityForResult(intent,CODE);
+
+                //天气
                 Intent intent=new Intent(MainActivity.this, WeatherActivity.class);
                 startActivity(intent);
             }
@@ -56,8 +63,8 @@ public class MainActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode==CODE&&resultCode==RESULT_OK){
             if (data!=null){
-//                String rest=data.getStringExtra(QRCodeActivity.DATA);
-//                Toast.makeText(this,"扫描的二维码为"+rest,Toast.LENGTH_LONG).show();
+                String rest=data.getStringExtra(QRCodeActivity.DATA);
+                Toast.makeText(this,"扫描的二维码为"+rest,Toast.LENGTH_LONG).show();
             }
         }
     }

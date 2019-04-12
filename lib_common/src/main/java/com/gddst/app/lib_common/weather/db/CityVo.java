@@ -29,11 +29,14 @@ public class CityVo {
     private String lon;
     private String tz;
     private String addCityTime;
-    private boolean isLocationCity;
-    @Generated(hash = 719243887)
+    private int cityType;    //1 为定位城市  2为城市列表选择城市
+    @Generated(hash = 54631091)
+    public CityVo() {
+    }
+    @Generated(hash = 1144016217)
     public CityVo(Long id, String cid, String location, String parent_city,
             String admin_area, String cnty, String lat, String lon, String tz,
-            String addCityTime, boolean isLocationCity) {
+            String addCityTime, int cityType) {
         this.id = id;
         this.cid = cid;
         this.location = location;
@@ -44,10 +47,7 @@ public class CityVo {
         this.lon = lon;
         this.tz = tz;
         this.addCityTime = addCityTime;
-        this.isLocationCity = isLocationCity;
-    }
-    @Generated(hash = 54631091)
-    public CityVo() {
+        this.cityType = cityType;
     }
     public Long getId() {
         return this.id;
@@ -103,17 +103,17 @@ public class CityVo {
     public void setTz(String tz) {
         this.tz = tz;
     }
-    public boolean getIsLocationCity() {
-        return this.isLocationCity;
-    }
-    public void setIsLocationCity(boolean isLocationCity) {
-        this.isLocationCity = isLocationCity;
-    }
     public String getAddCityTime() {
         return this.addCityTime;
     }
     public void setAddCityTime(String addCityTime) {
         this.addCityTime = addCityTime;
+    }
+    public int getCityType() {
+        return this.cityType;
+    }
+    public void setCityType(int cityType) {
+        this.cityType = cityType;
     }
 
 }

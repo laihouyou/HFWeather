@@ -139,7 +139,7 @@ public class WeatherFragment extends BaseFragment {
         long time= DateUtil.timeSub(weatherVo.getUpdateTime(),DateUtil.getNow());
         if (time>= WeatherUtil.weatherUpdateTimeInterval){
             showTimeOutBefore();
-            requestWeather(weatherVo.getBasic().getCid(),weatherVo.isLocationCity());
+            requestWeather(weatherVo.getBasic().getCid(),weatherVo.getCityType());
 
         }else {
             showText(weatherVo);
@@ -163,23 +163,23 @@ public class WeatherFragment extends BaseFragment {
         Glide.with(context).load(picUrl).into(context.im_pic);
     }
 
-    public  Observable getWeatherObservable(String cityCid, final boolean isLocationCity){
+    public  Observable getWeatherObservable(String cityCid, final int cityType){
         return  Observable.just(cityCid)
                 .subscribeOn(Schedulers.io())
                 .flatMap(new Function<String, ObservableSource<WeatherVo>>() {
                     @Override
                     public ObservableSource<WeatherVo> apply(String weatherCode) throws Exception {
                         return getZip(
-                                getobservableNow(weatherCode,isLocationCity),
+                                getobservableNow(weatherCode,cityType),
                                 getobservableAirNow(weatherCode),
-                                isLocationCity
+                                cityType
                         );
                     }
                 });
     }
 
-    public void requestWeather(String cityCid, final boolean isLocationCity) {
-       getWeatherObservable(cityCid,isLocationCity)
+    public void requestWeather(String cityCid, final int cityType) {
+       getWeatherObservable(cityCid,cityType)
                 .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(new DlObserve<WeatherVo>() {
                     @Override
@@ -198,7 +198,7 @@ public class WeatherFragment extends BaseFragment {
 
     }
 
-    private Observable getZip(Observable observableNow, Observable observableAirNow, final boolean isLocationCity){
+    private Observable getZip(Observable observableNow, Observable observableAirNow, final int cityType){
         return Observable.zip(observableNow, observableAirNow, new BiFunction() {
             @Override
             public Object apply(Object o, Object o2) throws Exception {
@@ -222,7 +222,7 @@ public class WeatherFragment extends BaseFragment {
                     cityVo.setParent_city(weatherVo.getBasic().getParent_city());
                     cityVo.setTz(weatherVo.getBasic().getTz());
 //                    cityVo.setUpdateTime(DateUtil.getNow());
-                    cityVo.setIsLocationCity(isLocationCity);
+                    cityVo.setCityType(cityType);
                     List<CityVo> cityVoList= BaseApplication.getIns().getDaoSession().getCityVoDao()
                             .queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
                     if (cityVoList.size()==0){
@@ -238,13 +238,13 @@ public class WeatherFragment extends BaseFragment {
 
     }
 
-    private Observable getobservableNow(String weatherId, final boolean isLocationCity){
+    private Observable getobservableNow(String weatherId, final int cityType){
         return NetManager.INSTANCE.getShopClient()
                 .getWeatherNow(Keys.key, weatherId)
                 .map(new Function<Response<ResponseBody>, WeatherVo>() {
                     @Override
                     public WeatherVo apply(Response<ResponseBody> response) throws Exception {
-                        return ResponseToWeatherVo(response,isLocationCity);
+                        return ResponseToWeatherVo(response,cityType);
                     }
                 });
     }
@@ -371,7 +371,7 @@ public class WeatherFragment extends BaseFragment {
     }
 
 
-    private WeatherVo ResponseToWeatherVo(Response<ResponseBody> response,boolean isLocationCity) throws IOException, JSONException {
+    private WeatherVo ResponseToWeatherVo(Response<ResponseBody> response,int cityType) throws IOException, JSONException {
         if (response.code() != 200 ) {
             return new WeatherVo();
         }
@@ -383,7 +383,7 @@ public class WeatherFragment extends BaseFragment {
         if (status.equals(WeatherUtil.ok)){
             WeatherVo weatherVo = BaseApplication.getGson().fromJson(weatherObject.toString(), WeatherVo.class);
             weatherVo.setUpdateTime(DateUtil.getNow());
-            weatherVo.setLocationCity(isLocationCity);
+            weatherVo.setCityType(cityType);
             return weatherVo;
         }
         return new WeatherVo();

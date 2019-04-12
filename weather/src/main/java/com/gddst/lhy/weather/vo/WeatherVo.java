@@ -7,7 +7,7 @@ public class WeatherVo {
 
     private BasicBean basic;
     private UpdateBean update;
-    private boolean isLocationCity;
+    private int cityType;
     private String status;
     private NowBean now;
     private List<DailyForecastBean> daily_forecast;
@@ -16,12 +16,12 @@ public class WeatherVo {
 
     private AirNow airNow;
 
-    public boolean isLocationCity() {
-        return isLocationCity;
+    public int getCityType() {
+        return cityType;
     }
 
-    public void setLocationCity(boolean locationCity) {
-        isLocationCity = locationCity;
+    public void setCityType(int cityType) {
+        this.cityType = cityType;
     }
 
     private String updateTime;
@@ -110,7 +110,7 @@ public class WeatherVo {
     public static class BasicBean {
         /**
          * cid : CN101040100
-         * location : 重庆
+         * location : 重庆1
          * parent_city : 重庆
          * admin_area : 重庆
          * cnty : 中国

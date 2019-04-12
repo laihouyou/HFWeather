@@ -3,12 +3,14 @@ package com.gddst.app.lib_common.widgets;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Vibrator;
+import android.util.Log;
+
+import com.gddst.app.lib_common.R;
+
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
-import android.util.Log;
 import cn.bingoogolapple.qrcode.core.QRCodeView;
 import cn.bingoogolapple.qrcode.zxing.ZXingView;
-import com.gddst.app.lib_common.R;
 
 public class QRCodeActivity extends AppCompatActivity implements QRCodeView.Delegate {
     private static final String TAG = QRCodeActivity.class.getSimpleName();

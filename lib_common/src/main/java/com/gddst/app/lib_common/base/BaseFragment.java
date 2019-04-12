@@ -79,7 +79,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     protected abstract View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState);
-    protected abstract void initView(View root);
+    protected abstract void initView(View view);
     protected abstract void initListener();
 
     /**

@@ -25,10 +25,12 @@ import com.gddst.app.lib_common.weather.db.CityVo;
 import com.gddst.app.lib_common.weather.util.Keys;
 import com.gddst.app.lib_common.widgets.MySwipeRefreshLayout;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
+import com.gddst.lhy.weather.fragment.CityListFragment;
 import com.gddst.lhy.weather.fragment.ProvinceCityFragment;
 import com.gddst.lhy.weather.fragment.WeatherFragment;
 import com.gddst.lhy.weather.fragment.dummy.DummyContent;
 import com.gddst.lhy.weather.util.JsonUtils;
+import com.gddst.lhy.weather.util.WeatherUtil;
 import com.gddst.lhy.weather.vo.WeatherVo;
 import com.google.gson.Gson;
 
@@ -87,6 +89,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         weatherViewPager=findViewById(R.id.viewpager_weather);
         weatherViewPager.addOnPageChangeListener(this);
         tv_title = findViewById(R.id.tv_title);
+        tv_title.setOnClickListener(this);
         tv_time = findViewById(R.id.tv_time);
         title_image = findViewById(R.id.title_image);
         title_image.setOnClickListener(this);
@@ -97,7 +100,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         swipeRefres.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                newWeatherFragment.requestWeather(cityVo.getCid(),cityVo.getIsLocationCity());
+                newWeatherFragment.requestWeather(cityVo.getCid(),cityVo.getCityType());
                 newWeatherFragment.getPicImage();
                 Log.i("tag","天气请求刷新++++++++++++++++++++++++++");
             }
@@ -124,7 +127,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             weatherFragmentList.add(weatherFragment);
 
             CityVo cityVo=cityVoList.get(i);
-            if (cityVo.getIsLocationCity()){
+            if (cityVo.getCityType()==WeatherUtil.city_location){
                 currentItem=i;
             }
 
@@ -216,6 +219,13 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             fragmentTransaction.commit();
             drawerLayout.openDrawer(GravityCompat.START);
         }
+        if (v.getId()==R.id.tv_title){
+            CityListFragment cityListFragment=new CityListFragment();
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            fragmentTransaction.replace(R.id.cityManagementFarmeLayout, cityListFragment);
+            fragmentTransaction.commit();
+        }
     }
 
     @Override
@@ -292,7 +302,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
             if (weatherFragmentList.size()==0){
                 //这里需要通过坐标信息去拿城市id
-                getCityId(location,true);
+                getCityId(location, WeatherUtil.city_location);
             }
         }
         else if (event instanceof DummyContent.DummyItem){
@@ -303,7 +313,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                 drawerLayout.closeDrawers();
             }
             //这里需要通过城市名字去拿城市id
-            getCityId(cityName,false);
+            getCityId(cityName,WeatherUtil.city_select);
 
             //动态添加指示器
             createImage(false,false);
@@ -317,7 +327,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         }
     }
 
-    private void getCityId(final String cityName, final boolean isLocationCity) {
+    private void getCityId(final String cityName, final int cityType) {
         NetManager.INSTANCE.getShopClient()
                 .getCityId(Keys.key,cityName)
                 .subscribeOn(Schedulers.io())
@@ -336,7 +346,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                         weatherAdapter.notifyDataSetChanged();
                         weatherViewPager.setCurrentItem(weatherFragmentList.size()-1);
 
-                        weatherFragment.requestWeather(s,isLocationCity);
+                        weatherFragment.requestWeather(s,cityType);
 
                     }
 

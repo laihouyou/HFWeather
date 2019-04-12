@@ -5,6 +5,7 @@
     <!-- 访问照相机的权限 -->
     <uses-permission android:name="android.permission.CAMERA"/>
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
+    <uses-permission android:name="android.permission.VIBRATE"/>
     <!--用于进行网络定位-->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION">
 
@@ -29,7 +30,7 @@
     <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission>
 
-    <application android:theme="@style/AppTheme">
+    <application android:theme="@style/AppTheme.NoActionBar">
         <service
                 android:name=".location.LocationIntentService"
                 android:exported="false">
