@@ -1,6 +1,5 @@
 package com.gddst.lhy.weather.fragment;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -19,6 +18,7 @@ import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.utils.DateUtil;
 import com.gddst.app.lib_common.weather.db.CityVo;
 import com.gddst.lhy.weather.R;
+import com.gddst.lhy.weather.WeatherActivity;
 import com.gddst.lhy.weather.util.WeatherUtil;
 import com.gddst.lhy.weather.vo.WeatherVo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.FragmentTransaction;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.Observable;
@@ -43,7 +44,7 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
 
     private List<WeatherVo> weatherVoList;
     private CommonRecycleViewAdapter<WeatherVo> cityListAdapter;
-    private Context context;
+    private WeatherActivity context;
     @Override
     protected View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return getLayoutInflater().inflate(R.layout.fragment_city_list_layout,container,false);
@@ -68,7 +69,7 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     protected void lazyLoad() {
-        context=getActivity();
+        context= (WeatherActivity) getActivity();
         weatherVoList=new ArrayList<>();
         intiRecycleList();
     }
@@ -190,6 +191,14 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
 
     @Override
     public void onClick(View v) {
-
+        int id = v.getId();
+        if (id == R.id.tv_city_back) {
+            FragmentTransaction fragmentTransaction=context.getSupportFragmentManager().beginTransaction();
+            fragmentTransaction.remove(this);
+            fragmentTransaction.commit();
+        }
+        else if (id== R.id.tv_city_edit){
+//            context.fragmentTransaction.add()
+        }
     }
 }

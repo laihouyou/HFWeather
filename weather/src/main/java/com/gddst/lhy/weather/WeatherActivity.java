@@ -63,6 +63,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     public LinearLayout linelayout_indicator;
 
     public boolean isLocationValue=false;
+    public FragmentTransaction fragmentTransaction;
 
     private ViewPager weatherViewPager;
     private WeatherAdapter weatherAdapter;
@@ -224,6 +225,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             fragmentTransaction.replace(R.id.cityManagementFarmeLayout, cityListFragment);
+            fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
         }
     }
@@ -231,6 +233,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         Log.i("tag",position+"");
+        cityVo=cityVoList.get(position);
     }
 
     @Override
