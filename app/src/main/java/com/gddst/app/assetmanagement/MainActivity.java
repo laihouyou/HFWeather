@@ -1,18 +1,21 @@
 package com.gddst.app.assetmanagement;
 
+import android.Manifest;
 import android.content.Intent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.TextView;
 import android.widget.Toast;
-
-import com.gddst.app.lib_common.base.BaseActivity;
-import com.gddst.app.lib_common.widgets.QRCodeActivity;
-import com.gddst.lhy.weather.WeatherActivity;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
+
+import com.gddst.app.lib_common.base.BaseActivity;
+import com.gddst.app.lib_common.widgets.QRCodeActivity;
+import com.gddst.app.rxpermissions.RxPermissionsUtil;
+import com.gddst.lhy.weather.WeatherActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends BaseActivity {
     private static final  int CODE=52514;
@@ -26,24 +29,30 @@ public class MainActivity extends BaseActivity {
     protected void initView() {
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-//        RxPermissionsUtil.requestEachRxPermission(
-//                this,
-//                Manifest.permission.CAMERA,
-//                Manifest.permission.ACCESS_COARSE_LOCATION,
-//                Manifest.permission.VIBRATE
-//        );
+        RxPermissionsUtil.requestEachRxPermission(
+                this,
+                Manifest.permission.CAMERA,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.VIBRATE
+        );
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
         fab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
-                //二维码
-//                Intent intent=new Intent(MainActivity.this, QRCodeActivity.class);
-//                startActivityForResult(intent,CODE);
-
                 //天气
                 Intent intent=new Intent(MainActivity.this, WeatherActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        TextView tv_main=findViewById(R.id.tv_main);
+        tv_main.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //二维码
+                Intent intent=new Intent(MainActivity.this, QRCodeActivity.class);
+                startActivityForResult(intent,CODE);
             }
         });
     }
