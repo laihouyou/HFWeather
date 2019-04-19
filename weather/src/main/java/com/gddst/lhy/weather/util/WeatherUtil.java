@@ -33,7 +33,7 @@ public class WeatherUtil {
     public static final String ac="ac";
 
     //天气自动更新间隔时间
-    public static final long weatherUpdateTimeInterval=1*60;
+    public static final long weatherUpdateTimeInterval=60*60;
 
     //定位城市类型
     public static final int city_location=1;

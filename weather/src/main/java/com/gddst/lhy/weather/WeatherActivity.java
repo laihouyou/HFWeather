@@ -14,6 +14,17 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseActivity;
 import com.gddst.app.lib_common.base.BaseApplication;
@@ -26,6 +37,7 @@ import com.gddst.app.lib_common.weather.util.Keys;
 import com.gddst.app.lib_common.widgets.MySwipeRefreshLayout;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.fragment.CityListFragment;
+import com.gddst.lhy.weather.fragment.CommonPageAdapter;
 import com.gddst.lhy.weather.fragment.ProvinceCityFragment;
 import com.gddst.lhy.weather.fragment.WeatherFragment;
 import com.gddst.lhy.weather.fragment.dummy.DummyContent;
@@ -38,15 +50,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentPagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.ViewPager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -66,8 +69,8 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     public FragmentTransaction fragmentTransaction;
 
     private ViewPager weatherViewPager;
-    private WeatherAdapter weatherAdapter;
-    private List<WeatherFragment> weatherFragmentList;
+    private CommonPageAdapter weatherAdapter;
+    private List<Fragment> weatherFragmentList;
     private WeatherFragment newWeatherFragment;
     private List<CityVo> cityVoList;
     private CityVo cityVo;
@@ -118,10 +121,20 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     private void initWeatherViewPager() {
         cityVo=new CityVo();
         weatherFragmentList=new ArrayList<>();
-        weatherAdapter=new WeatherAdapter(getSupportFragmentManager());
+        weatherAdapter=new CommonPageAdapter(getSupportFragmentManager());
         weatherViewPager.setAdapter(weatherAdapter);
-        cityVoList= BaseApplication.getIns().getDaoSession()
-                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.Id).list();
+        cityVoList= new ArrayList<>();
+        updatList();
+    }
+
+    private void updatList(){
+        //清空数据源，将指示器重置为0
+        cityVoList.clear();
+        linelayout_indicator.removeAllViews();
+        enabledNum=0;
+
+        cityVoList.addAll(BaseApplication.getIns().getDaoSession()
+                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.CityType).list());
         int currentItem=0;
         for (int i = 0; i < cityVoList.size(); i++) {
             WeatherFragment weatherFragment=WeatherFragment.getFragment(cityVoList.get(i).getCid());
@@ -135,11 +148,11 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             createImage(i==0,cityVoList.size()>1&&i==0);
 
         }
-        weatherAdapter.notifyDataSetChanged();
+        weatherAdapter.updatePage(weatherFragmentList);
         weatherViewPager.setCurrentItem(currentItem);
         if (cityVoList.size()>0){
             showCityName(cityVoList.get(currentItem).getCid());
-            newWeatherFragment=weatherFragmentList.get(currentItem);
+            newWeatherFragment= (WeatherFragment) weatherFragmentList.get(currentItem);
         }else {
             //说明没有城市信息，需要
             showLocationBefore();
@@ -179,6 +192,12 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             }
         }
         linelayout_indicator.addView(imageView,layoutParams);
+
+        if (linelayout_indicator.getChildCount()>1){
+            linelayout_indicator.setVisibility(View.VISIBLE);
+        }else {
+            linelayout_indicator.setVisibility(View.GONE);
+        }
     }
 
     private void showCityName(String cityId) {
@@ -233,7 +252,9 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         Log.i("tag",position+"");
-        cityVo=cityVoList.get(position);
+        if (cityVoList.size()>position){
+            cityVo=cityVoList.get(position);
+        }
     }
 
     @Override
@@ -256,7 +277,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         }
 
         if (weatherFragmentList.size()>position){
-            newWeatherFragment=weatherFragmentList.get(position);
+            newWeatherFragment= (WeatherFragment) weatherFragmentList.get(position);
         }
     }
 
@@ -265,7 +286,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     }
 
-    private class WeatherAdapter extends FragmentPagerAdapter {
+    private class WeatherAdapter extends FragmentStatePagerAdapter {
 
         public WeatherAdapter(@NonNull FragmentManager fm) {
             super(fm);
@@ -280,6 +301,11 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         @Override
         public int getCount() {
             return weatherFragmentList.size();
+        }
+
+        @Override
+        public int getItemPosition(@NonNull Object object) {
+            return PagerAdapter.POSITION_NONE;
         }
 
         /*
@@ -327,6 +353,38 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                     .queryBuilder().list();
             cityVoList.clear();
             cityVoList.addAll(cityVos);
+        }
+        //删除城市成功刷新viewpage数据
+        else if (event instanceof WeatherVo){
+            WeatherVo weatherVo= (WeatherVo) event;
+            updateViewPathe(weatherVo);
+        }
+    }
+
+    private void updateViewPathe(WeatherVo weatherVo) {
+        String cid=weatherVo.getBasic().getCid();
+        for (int i=0;i<weatherFragmentList.size();i++){
+            WeatherFragment weatherFragment= (WeatherFragment) weatherFragmentList.get(i);
+            if (weatherFragment.getArguments()!=null){
+                String fragmentCid=weatherFragment.getArguments().getString(WeatherUtil.cid);
+                if (cid.equals(fragmentCid)){
+                    weatherFragmentList.remove(weatherFragment);
+                    updatList();
+//                    //指示器删除对应
+//                    linelayout_indicator.removeViewAt(i);
+//                    //设置当只有一个城市的时候不显示指示器
+//                    if (weatherFragmentList.size()==1){
+//                        linelayout_indicator.setVisibility(View.GONE);
+//                    }else {
+//                        linelayout_indicator.setVisibility(View.VISIBLE);
+//                    }
+//                    //刷新数据源
+//                    weatherAdapter.notifyDataSetChanged();
+//                    //每次删除成功后设置第一个城市显示
+//                    weatherViewPager.setCurrentItem(0);
+                    break;
+                }
+            }
         }
     }
 

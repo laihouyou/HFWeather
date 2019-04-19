@@ -9,9 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseApplication;
 import com.gddst.app.lib_common.base.BaseFragment;
+import com.gddst.app.lib_common.commonAdapter.adapterView.MyLinearLayoutManager;
 import com.gddst.app.lib_common.commonAdapter.recycleView.CommonRecycleViewAdapter;
 import com.gddst.app.lib_common.commonAdapter.recycleView.base.ViewHolder;
 import com.gddst.app.lib_common.net.DlObserve;
@@ -23,13 +27,12 @@ import com.gddst.lhy.weather.util.WeatherUtil;
 import com.gddst.lhy.weather.vo.WeatherVo;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.greenrobot.eventbus.EventBus;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
@@ -45,6 +48,8 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
     private List<WeatherVo> weatherVoList;
     private CommonRecycleViewAdapter<WeatherVo> cityListAdapter;
     private WeatherActivity context;
+
+    private boolean isEdit=false;     //是否是编辑模式
     @Override
     protected View createView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         return getLayoutInflater().inflate(R.layout.fragment_city_list_layout,container,false);
@@ -106,32 +111,59 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
     }
 
     private void setListData() {
-        city_recycler_list.setLayoutManager(new LinearLayoutManager(getActivity()));
+        city_recycler_list.setLayoutManager(new MyLinearLayoutManager(getActivity()));
         cityListAdapter=new CommonRecycleViewAdapter<WeatherVo>(context,R.layout.item_city_recycle,weatherVoList) {
             @Override
-            protected void convert(ViewHolder viewHolder, WeatherVo weatherVo, int position) {
-                WeatherVo.BasicBean basicBean=weatherVo.getBasic();
+            protected void convert(ViewHolder viewHolder, final WeatherVo weatherVo, final int position) {
+                final WeatherVo.BasicBean basicBean=weatherVo.getBasic();
                 WeatherVo.NowBean nowBean=weatherVo.getNow();
+
+                if (isEdit){
+                    //定位城市不显示删除按钮
+                    if (weatherVo.getCityType()!=1){
+                        viewHolder.setVisible(R.id.im_city_delete, View.VISIBLE);
+                    }
+
+                    viewHolder.setVisible(R.id.tv_weather_oath, View.GONE);
+                    viewHolder.setVisible(R.id.tv_weather_max_min_num, View.GONE);
+                    viewHolder.setVisible(R.id.im_weather_icon, View.GONE);
+                    viewHolder.setVisible(R.id.tv_weather_num, View.GONE);
+
+                }else {
+                    viewHolder.setVisible(R.id.im_city_delete, View.GONE);
+
+                    viewHolder.setVisible(R.id.tv_weather_oath, View.VISIBLE);
+                    viewHolder.setVisible(R.id.tv_weather_max_min_num, View.VISIBLE);
+                    viewHolder.setVisible(R.id.im_weather_icon, View.VISIBLE);
+                    viewHolder.setVisible(R.id.tv_weather_num, View.VISIBLE);
+                }
+
                 viewHolder.setText(R.id.tv_city_detailed,basicBean.getLocation());
+                if (weatherVo.getCityType()==1){
+                    viewHolder.setVisible(R.id.im_loaction_icon,View.VISIBLE);
+                }else {
+                    viewHolder.setVisible(R.id.im_loaction_icon,View.GONE);
+                }
                 /**
                  * 判断城市是否属于直辖市、省会城市
                  */
                 //县与市名字一样
                 if (basicBean.getParent_city().equals(basicBean.getLocation())){
-                    if (basicBean.getParent_city().equals(basicBean.getAdmin_area())){      //市与省名字一样
+                    if (basicBean.getLocation().equals(basicBean.getAdmin_area())){      //县与省名字一样
                         //属于直辖市  如北京市 直接显示国家信息
                         viewHolder.setText(R.id.tv_province,basicBean.getCnty());
-                    }else {     //市与省名字不一样
+                    }else {     //县与省名字不一样
                         //属于地级城市 如赣州市 直接显示省份信息
                         viewHolder.setText(R.id.tv_province,basicBean.getAdmin_area());
                     }
                 }else {          //县与市名字一样
                     if (basicBean.getParent_city().equals(basicBean.getAdmin_area())){      //市与省名字一样
-                        //属于县级城市 如 巴南-重庆-重庆-中国
-                        viewHolder.setText(R.id.tv_province,basicBean.getAdmin_area()+"-"+basicBean.getCnty());
-                    }else {        //市与省名字不一样
+                        //属于县级城市 如 重庆-重庆-重庆-中国
+                        viewHolder.setText(R.id.tv_province,basicBean.getLocation()+"-"+basicBean.getCnty());
+                    }
+                    else {        //市与省名字不一样
                         //属于县级城市 如 赣州-赣州-江西-中国
-                        viewHolder.setText(R.id.tv_province,basicBean.getAdmin_area());
+                        viewHolder.setText(R.id.tv_province,basicBean.getParent_city()+"-"+basicBean.getAdmin_area());
                     }
                 }
                 //当前温度
@@ -165,7 +197,23 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
                     }
                 }
 
-
+                //删除城市
+                viewHolder.setOnClickListener(R.id.im_city_delete, new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        if (weatherVo.getCityType()!=1){
+                            CityVoDao cityVoDao=BaseApplication.getIns().getDaoSession().getCityVoDao();
+                            List<CityVo> cityVoList=cityVoDao.queryBuilder()
+                                    .where(CityVoDao.Properties.Cid.eq(basicBean.getCid())).list();
+                            if (cityVoList.size()==1){
+                                cityVoDao.delete(cityVoList.get(0));
+                                weatherVoList.remove(position);
+                                notifyItemChanged(position);
+                                EventBus.getDefault().post(weatherVo);
+                            }
+                        }
+                    }
+                });
             }
         };
         city_recycler_list.setAdapter(cityListAdapter);
@@ -192,13 +240,21 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
     @Override
     public void onClick(View v) {
         int id = v.getId();
+        //返回
         if (id == R.id.tv_city_back) {
             FragmentTransaction fragmentTransaction=context.getSupportFragmentManager().beginTransaction();
             fragmentTransaction.remove(this);
             fragmentTransaction.commit();
         }
+        //编辑
         else if (id== R.id.tv_city_edit){
-//            context.fragmentTransaction.add()
+            if (isEdit){
+                isEdit=false;
+            }else {
+                isEdit=true;
+            }
+            cityListAdapter.notifyDataSetChanged();
         }
+
     }
 }
