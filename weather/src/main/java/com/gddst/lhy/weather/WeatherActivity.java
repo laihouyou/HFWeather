@@ -14,17 +14,6 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseActivity;
 import com.gddst.app.lib_common.base.BaseApplication;
@@ -50,6 +39,16 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.annotation.NonNull;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -130,6 +129,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     private void updatList(){
         //清空数据源，将指示器重置为0
         cityVoList.clear();
+        weatherFragmentList.clear();
         linelayout_indicator.removeAllViews();
         enabledNum=0;
 
@@ -243,6 +243,8 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             CityListFragment cityListFragment=new CityListFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+            //添加加载动画
+            fragmentTransaction.setCustomAnimations(R.animator.city_list_add,R.animator.city_list_detele);
             fragmentTransaction.replace(R.id.cityManagementFarmeLayout, cityListFragment);
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
@@ -403,9 +405,9 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                     @Override
                     public void onResponse(String s) throws IOException {
                         WeatherFragment weatherFragment=WeatherFragment.getFragment(s);
-                        weatherFragmentList.add(weatherFragment);
-                        weatherAdapter.notifyDataSetChanged();
-                        weatherViewPager.setCurrentItem(weatherFragmentList.size()-1);
+//                        weatherFragmentList.add(weatherFragment);
+                        weatherAdapter.addPage(weatherFragment);
+                        weatherViewPager.setCurrentItem(weatherAdapter.getFragmentList().size()-1);
 
                         weatherFragment.requestWeather(s,cityType);
 

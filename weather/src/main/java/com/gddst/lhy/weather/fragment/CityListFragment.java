@@ -9,9 +9,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseApplication;
 import com.gddst.app.lib_common.base.BaseFragment;
@@ -33,6 +30,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
@@ -243,6 +242,8 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
         //返回
         if (id == R.id.tv_city_back) {
             FragmentTransaction fragmentTransaction=context.getSupportFragmentManager().beginTransaction();
+            //添加加载动画
+            fragmentTransaction.setCustomAnimations(R.animator.city_list_add,R.animator.city_list_detele);
             fragmentTransaction.remove(this);
             fragmentTransaction.commit();
         }
