@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,10 +13,12 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.core.widget.NestedScrollView;
+
 import com.bumptech.glide.Glide;
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseApplication;
-import com.gddst.app.lib_common.base.BaseFragment;
+import com.gddst.app.lib_common.base.fragment.BaseFragment;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.utils.DateUtil;
@@ -35,7 +38,6 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.List;
 
-import androidx.core.widget.NestedScrollView;
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -405,4 +407,8 @@ public class WeatherFragment extends BaseFragment {
         return new AirNow();
     }
 
+    @Override
+    public boolean excueOnKeyDown(int keyCode, KeyEvent event) {
+        return false;
+    }
 }

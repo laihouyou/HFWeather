@@ -35,8 +35,28 @@ public interface ShopClient {
 //    @GET("https://free-api.heweather.net/s6/weather/lifestyle")
 //    Observable<Response<ResponseBody>> getWeatherLifeStyle(@Query("key") String key, @Query("location") String location);
 
+    /**
+     * 通过城市名字等字段获取城市信息
+     * @param key
+     * @param location
+     * @return
+     */
     @GET("https://search.heweather.net/find")
     Observable<Response<ResponseBody>> getCityId(@Query("key") String key, @Query("location") String location);
+
+    /**
+     * 获取热门城市列表
+     * @param key
+     * @param group
+     *         world，返回全球热门城市
+     * 特殊值：cn，返回中国热门城市
+     * 特殊值：overseas，查询海外热门城市（不含中国）
+     * @return
+     */
+    @GET("https://search.heweather.net/top")
+    Observable<Response<ResponseBody>> getHostCity(
+            @Query("key") String key,@Query("group") String group,
+            @Query("number") int number,@Query("lang") String lang);
 
     @GET("http://guolin.tech/api/bing_pic")
     Observable<Response<ResponseBody>> getPicUrl();

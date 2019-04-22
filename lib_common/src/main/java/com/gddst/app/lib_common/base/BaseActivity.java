@@ -6,17 +6,20 @@ import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import androidx.annotation.IdRes;
-import androidx.annotation.LayoutRes;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.Toolbar;
 import android.util.SparseArray;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+
+import androidx.annotation.IdRes;
+import androidx.annotation.LayoutRes;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+
 import com.gddst.app.lib_common.utils.ToastUtils;
+
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
@@ -157,6 +160,7 @@ public abstract class BaseActivity extends AppCompatActivity {
         super.onDestroy();
     }
 
+
     /**
      * 获取控件id,类似于findviewbyid
      *
@@ -276,4 +280,5 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void setTransverse(boolean transverse) {
         isTransverse = transverse;
     }
+
 }

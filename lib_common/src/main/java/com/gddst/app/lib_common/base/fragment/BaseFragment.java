@@ -1,4 +1,4 @@
-package com.gddst.app.lib_common.base;
+package com.gddst.app.lib_common.base.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -7,7 +7,7 @@ import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
-public abstract class BaseFragment extends Fragment {
+public abstract class BaseFragment extends Fragment implements IFragmentKeyDownHandled {
     private String TAG = BaseFragment.class.getSimpleName();
 
     private View mRoot;
@@ -82,6 +82,7 @@ public abstract class BaseFragment extends Fragment {
     protected abstract void initView(View view);
     protected abstract void initListener();
 
+
     /**
      * fragment第一次可见的时候回调此方法
      */
@@ -92,4 +93,5 @@ public abstract class BaseFragment extends Fragment {
      * 子类可以重写这个方法做数据刷新操作
      */
     protected void refreshLoad(){}
+
 }

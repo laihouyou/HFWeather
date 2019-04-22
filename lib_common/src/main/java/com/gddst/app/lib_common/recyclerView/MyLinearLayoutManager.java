@@ -1,4 +1,4 @@
-package com.gddst.app.lib_common.commonAdapter.adapterView;
+package com.gddst.app.lib_common.recyclerView;
 
 import android.content.Context;
 import android.util.AttributeSet;

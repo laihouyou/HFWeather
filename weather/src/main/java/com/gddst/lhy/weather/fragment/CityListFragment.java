@@ -9,10 +9,13 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseApplication;
-import com.gddst.app.lib_common.base.BaseFragment;
-import com.gddst.app.lib_common.commonAdapter.adapterView.MyLinearLayoutManager;
+import com.gddst.app.lib_common.base.fragment.BackFragment;
+import com.gddst.app.lib_common.recyclerView.MyLinearLayoutManager;
 import com.gddst.app.lib_common.commonAdapter.recycleView.CommonRecycleViewAdapter;
 import com.gddst.app.lib_common.commonAdapter.recycleView.base.ViewHolder;
 import com.gddst.app.lib_common.net.DlObserve;
@@ -30,14 +33,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.fragment.app.FragmentTransaction;
-import androidx.recyclerview.widget.RecyclerView;
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
-public class CityListFragment extends BaseFragment implements View.OnClickListener {
+public class CityListFragment extends BackFragment implements View.OnClickListener {
     private TextView tv_city_back;
     private TextView tv_city_name;
     private TextView tv_city_edit;
@@ -69,6 +70,12 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
         tv_city_back.setOnClickListener(this);
         tv_city_edit.setOnClickListener(this);
         btn_city_add.setOnClickListener(this);
+    }
+
+    @Override
+    protected boolean backFragment() {
+        back();
+        return true;
     }
 
     @Override
@@ -241,11 +248,7 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
         int id = v.getId();
         //返回
         if (id == R.id.tv_city_back) {
-            FragmentTransaction fragmentTransaction=context.getSupportFragmentManager().beginTransaction();
-            //添加加载动画
-            fragmentTransaction.setCustomAnimations(R.animator.city_list_add,R.animator.city_list_detele);
-            fragmentTransaction.remove(this);
-            fragmentTransaction.commit();
+            back();
         }
         //编辑
         else if (id== R.id.tv_city_edit){
@@ -256,6 +259,26 @@ public class CityListFragment extends BaseFragment implements View.OnClickListen
             }
             cityListAdapter.notifyDataSetChanged();
         }
+        //进入城市搜索页面
+        else if (id== R.id.btn_city_add){
+            CitySearchFragment citySearchFragment=new CitySearchFragment();
+            FragmentTransaction fragmentTransaction=context.getSupportFragmentManager().beginTransaction();
+            //添加加载动画
+            fragmentTransaction.setCustomAnimations(R.animator.city_search_add,R.animator.city_search_detele);
+            fragmentTransaction.add(R.id.cityManagementFarmeLayout,citySearchFragment);
+            fragmentTransaction.commit();
+        }
+
 
     }
+
+    private void back() {
+        FragmentTransaction fragmentTransaction=context.getSupportFragmentManager().beginTransaction();
+        //添加加载动画
+        fragmentTransaction.setCustomAnimations(R.animator.city_list_add,R.animator.city_list_detele);
+        fragmentTransaction.remove(this);
+        fragmentTransaction.commit();
+    }
+
+
 }

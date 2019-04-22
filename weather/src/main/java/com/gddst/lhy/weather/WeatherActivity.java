@@ -8,15 +8,28 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
 import android.view.Gravity;
+import android.view.KeyEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentStatePagerAdapter;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseActivity;
 import com.gddst.app.lib_common.base.BaseApplication;
+import com.gddst.app.lib_common.base.fragment.IFragmentKeyDownHandled;
 import com.gddst.app.lib_common.location.LocationInfoExt;
 import com.gddst.app.lib_common.location.LocationIntentService;
 import com.gddst.app.lib_common.net.DlObserve;
@@ -39,16 +52,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-import androidx.annotation.NonNull;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
@@ -419,4 +422,20 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                     }
                 });
     }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        FragmentManager fm = getSupportFragmentManager();
+        if(fm.getBackStackEntryCount() > 0 && fm.getFragments().get(fm.getFragments().size()-1) instanceof IFragmentKeyDownHandled){
+            if(((IFragmentKeyDownHandled) fm.getFragments().get(fm.getFragments().size()-1)).excueOnKeyDown(keyCode, event)){
+                return true;
+            }else {
+                return super.onKeyDown(keyCode, event);
+            }
+        }
+        else{
+            return super.onKeyDown(keyCode, event);
+        }
+    }
+
 }

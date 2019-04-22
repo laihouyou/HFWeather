@@ -4,10 +4,27 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
+        android:layout_height="wrap_content"
+        android:paddingTop="@dimen/dp_8"
+        android:paddingBottom="@dimen/dp_8"
+        android:paddingLeft="@dimen/dp_10"
+        android:paddingRight="@dimen/dp_10"
         android:textColor="@color/contents_text"
-        android:padding="@dimen/dp_10"
+        android:textSize="@dimen/sp_15"
+        android:gravity="center"
 >
+
+    <!--<TextView-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:id="@+id/item_text"-->
+        <!--android:gravity="center"-->
+        <!--android:textColor="@color/contents_text"-->
+        <!--android:textSize="@dimen/sp_15"-->
+        <!--android:paddingTop="@dimen/dp_5"-->
+        <!--android:paddingBottom="@dimen/dp_5"-->
+        <!--android:paddingLeft="@dimen/dp_10"-->
+        <!--android:paddingRight="@dimen/dp_10"-->
+        <!--/>-->
 
 </TextView>

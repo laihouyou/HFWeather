@@ -6,8 +6,6 @@ public class WeatherUtil {
     public static final String drawable="drawable";
     public static final String nowBase="nowBase";
     public static final String forecastBaseList="forecastBaseList";
-    public static final String airNowCity="airNowCity";
-    public static final String lifestyleBaseList="lifestyleBaseList";
     public static final String weatherId="weatherId";
 
     public static final String HeWeather6="HeWeather6";
@@ -39,4 +37,12 @@ public class WeatherUtil {
     public static final int city_location=1;
     //城市管理选择的城市类型
     public static final int city_select=2;
+    //获取全球的热门城市
+    public static final String world="world";
+    //返回中国热门城市
+    public static final String cn="cn";
+    //查询海外热门城市（不含中国）
+    public static final String overseas="overseas";
+    //返回的热门城市数量
+    public static final int city_host_num=50;
 }
