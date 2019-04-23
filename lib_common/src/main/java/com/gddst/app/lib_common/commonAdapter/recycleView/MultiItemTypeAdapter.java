@@ -4,13 +4,13 @@ import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.RecyclerView;
+
 import com.gddst.app.lib_common.commonAdapter.recycleView.base.ItemViewDelegate;
 import com.gddst.app.lib_common.commonAdapter.recycleView.base.ItemViewDelegateManager;
 import com.gddst.app.lib_common.commonAdapter.recycleView.base.ViewHolder;
 
 import java.util.List;
-
-import androidx.recyclerview.widget.RecyclerView;
 
 /**
  * Created by zhy on 16/4/9.
@@ -31,7 +31,8 @@ public class MultiItemTypeAdapter<T> extends RecyclerView.Adapter<ViewHolder> {
 
     @Override
     public int getItemViewType(int position) {
-        if (!useItemViewDelegateManager()) return super.getItemViewType(position);
+        if (!useItemViewDelegateManager())
+            return super.getItemViewType(position);
         return mItemViewDelegateManager.getItemViewType(mDatas.get(position), position);
     }
 

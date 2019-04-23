@@ -4,7 +4,6 @@ public class WeatherUtil {
     public static final String weatherVo="weatherVo";
     public static final String weather="weather_";
     public static final String drawable="drawable";
-    public static final String nowBase="nowBase";
     public static final String forecastBaseList="forecastBaseList";
     public static final String weatherId="weatherId";
 
@@ -29,6 +28,10 @@ public class WeatherUtil {
     public static final String uv="uv";
     public static final String air="air";
     public static final String ac="ac";
+
+
+    //保存本地数据的热门城市数据
+    public static final String hostCityListStr="hostCityListStr";
 
     //天气自动更新间隔时间
     public static final long weatherUpdateTimeInterval=60*60;

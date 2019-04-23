@@ -70,16 +70,16 @@ public abstract class BaseObserver<T> extends DisposableObserver<T> {
         if (throwable instanceof IOException) {
             if (throwable instanceof UnknownHostException) {
                 //服务器异常
-                handleError(INTERRUPTED_IOEXCEPTION, "网络异常，请稍后重试");
+                handleError(INTERRUPTED_IOEXCEPTION, "服务器异常，请稍后重试");
             } else if (throwable instanceof InterruptedIOException) {
                 //超时异常
-                handleError(INTERRUPTED_IOEXCEPTION, "网络异常，请稍后重试");
+                handleError(INTERRUPTED_IOEXCEPTION, "请求超时，请稍后重试");
             } else {
                 handleError(OTHER_IOEXCEPTION, "网络异常，请稍后重试");
             }
         } else if (throwable instanceof HttpException) {
             //retrofit请求木有返回
-            handleError(HTTP_EXCEPTION, "网络异常，请稍后重试");
+            handleError(HTTP_EXCEPTION, "没有数据返回,请稍后重试");
         } else if (throwable instanceof JsonParseException
                 || throwable instanceof JSONException
                 || throwable instanceof ParseException) {

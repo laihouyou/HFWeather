@@ -31,6 +31,8 @@ versions.arouter_compiler = "1.2.2"
 versions.greendao_gradle_plugin = "3.2.2"
 versions.greendao = "3.2.2"
 
+versions.l_recycler_view = "1.5.4.3"
+
 
 versions.kotlin = "1.1.51"
 versions.dagger = "2.11"
@@ -132,6 +134,7 @@ deps.zxing = "cn.bingoogolapple:bga-qrcode-zxing:$versions.zxing"
 deps.location = "com.amap.api:location:$versions.location"
 deps.greendao_gradle_plugin = "org.greenrobot:greendao-gradle-plugin:$versions.greendao_gradle_plugin"
 deps.greendao = "org.greenrobot:greendao:$versions.greendao"
+deps.l_recycler_view = "com.github.jdsjlzx:LRecyclerView:$versions.l_recycler_view"
 
 ext.deps = deps
 

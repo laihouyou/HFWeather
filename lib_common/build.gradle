@@ -69,4 +69,6 @@ dependencies {
     api deps.greendao
     //图片加载
     api deps.glide
+    //LRecyclerView
+    api deps.l_recycler_view
 }

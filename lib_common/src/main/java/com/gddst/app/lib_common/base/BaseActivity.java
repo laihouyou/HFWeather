@@ -142,7 +142,7 @@ public abstract class BaseActivity extends AppCompatActivity {
     public void onBackPressed() {
         if (isDoubleExit()) {
             if (System.currentTimeMillis() - mTimeMillis > 2000) {
-                ToastUtils.showLongToast("在按一次退出");
+//                ToastUtils.showLongToast("在按一次退出");
                 mTimeMillis = System.currentTimeMillis();
             } else {
                 finish();
