@@ -42,10 +42,14 @@ public class WeatherUtil {
     public static final int city_select=2;
     //获取全球的热门城市
     public static final String world="world";
+    //获取全球的城市与中国景区
+    public static final String world_scenic="world,scenic";
     //返回中国热门城市
     public static final String cn="cn";
     //查询海外热门城市（不含中国）
     public static final String overseas="overseas";
     //返回的热门城市数量
     public static final int city_host_num=50;
+    //返回的搜索城市数量
+    public static final int city_search_num=20;
 }

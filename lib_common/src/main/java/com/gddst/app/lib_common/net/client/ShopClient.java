@@ -42,7 +42,12 @@ public interface ShopClient {
      * @return
      */
     @GET("https://search.heweather.net/find")
-    Observable<Response<ResponseBody>> getCityId(@Query("key") String key, @Query("location") String location);
+    Observable<Response<ResponseBody>> getCityId(
+            @Query("key") String key,
+            @Query("group") String group,
+            @Query("number") int number,
+            @Query("location") String location
+    );
 
     /**
      * 获取热门城市列表

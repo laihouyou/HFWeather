@@ -239,6 +239,8 @@
 
     <!-- 中绿色 -->
     <color name="cornflowerblue11">#23adf4</color>
+    <!-- 中绿色 -->
+    <color name="cornflowerblue12">#1296db</color>
 
 
     <!-- 菊兰色 -->
@@ -467,6 +469,7 @@
     <color name="point_facility8">#a0a0ab</color>
     <color name="point_facility9">#d4ddde</color>
     <color name="point_facility10">#656565</color>
+    <color name="point_facility11">#707070</color>
 
     <color name="split">#cccccc</color>
     <color name="color_ff4a57">#ff4a57</color>

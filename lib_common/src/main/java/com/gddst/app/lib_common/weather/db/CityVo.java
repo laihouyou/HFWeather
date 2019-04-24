@@ -30,13 +30,14 @@ public class CityVo {
     private String tz;
     private String addCityTime;
     private int cityType;    //1 为定位城市  2为城市列表选择城市
+    private boolean isSelected;     //该城市本地是否已经选择
     @Generated(hash = 54631091)
     public CityVo() {
     }
-    @Generated(hash = 1144016217)
+    @Generated(hash = 180632876)
     public CityVo(Long id, String cid, String location, String parent_city,
             String admin_area, String cnty, String lat, String lon, String tz,
-            String addCityTime, int cityType) {
+            String addCityTime, int cityType, boolean isSelected) {
         this.id = id;
         this.cid = cid;
         this.location = location;
@@ -48,6 +49,7 @@ public class CityVo {
         this.tz = tz;
         this.addCityTime = addCityTime;
         this.cityType = cityType;
+        this.isSelected = isSelected;
     }
     public Long getId() {
         return this.id;
@@ -114,6 +116,12 @@ public class CityVo {
     }
     public void setCityType(int cityType) {
         this.cityType = cityType;
+    }
+    public boolean getIsSelected() {
+        return this.isSelected;
+    }
+    public void setIsSelected(boolean isSelected) {
+        this.isSelected = isSelected;
     }
 
 }

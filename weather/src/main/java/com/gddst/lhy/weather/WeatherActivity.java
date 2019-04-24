@@ -395,7 +395,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     private void getCityId(final String cityName, final int cityType) {
         NetManager.INSTANCE.getShopClient()
-                .getCityId(Keys.key,cityName)
+                .getCityId(Keys.key,WeatherUtil.world,WeatherUtil.city_host_num,cityName)
                 .subscribeOn(Schedulers.io())
                 .map(new Function<Response<ResponseBody>, String>() {
                     @Override
