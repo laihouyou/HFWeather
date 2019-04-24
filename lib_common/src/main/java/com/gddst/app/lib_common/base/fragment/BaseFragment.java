@@ -2,12 +2,13 @@ package com.gddst.app.lib_common.base.fragment;
 
 import android.os.Bundle;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.fragment.app.Fragment;
 
-public abstract class BaseFragment extends Fragment implements IFragmentKeyDownHandled {
+public abstract class BaseFragment extends Fragment implements IFragmentKeyDownHandled, View.OnTouchListener {
     private String TAG = BaseFragment.class.getSimpleName();
 
     private View mRoot;
@@ -57,6 +58,7 @@ public abstract class BaseFragment extends Fragment implements IFragmentKeyDownH
             initView(mRoot);
             initListener();
             onVisible();
+            mRoot.setOnTouchListener(this);
         }
         return mRoot;
     }
@@ -94,4 +96,9 @@ public abstract class BaseFragment extends Fragment implements IFragmentKeyDownH
      */
     protected void refreshLoad(){}
 
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        //返回true防止fragment点击事件重叠
+        return true;
+    }
 }
