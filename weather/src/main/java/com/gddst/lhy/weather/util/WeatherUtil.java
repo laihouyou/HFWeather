@@ -29,6 +29,12 @@ public class WeatherUtil {
     public static final String air="air";
     public static final String ac="ac";
 
+    //从城市管理页面返回天气主页面
+    public static final String back_action="back_action";
+    //旧版选择县级城市后更新主页面数据
+    public static final String updata_action="updata_action";
+    //删除城市后更新主页面数据
+    public static final String delete_action="delete_action";
 
     //保存本地数据的热门城市数据
     public static final String hostCityListStr="hostCityListStr";

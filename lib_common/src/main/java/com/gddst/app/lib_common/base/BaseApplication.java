@@ -35,7 +35,6 @@ public class BaseApplication extends Application {
     private SharedPreferences.Editor pEditor; // sharedpreferred数据提交
 
     private static DaoSession daoSession;
-    private static DaoMaster daoMaster;
     private static Gson gson;
 
     public static BaseApplication getIns() {
@@ -69,7 +68,7 @@ public class BaseApplication extends Application {
     private void setSupDao() {
         // 创建数据
         DaoMaster.DevOpenHelper devOpenHelper = new DaoMaster.DevOpenHelper(this, "hlq.db", null);
-        daoMaster = new DaoMaster(devOpenHelper.getWritableDatabase());
+        DaoMaster daoMaster = new DaoMaster(devOpenHelper.getWritableDatabase());
         daoSession=daoMaster.newSession();
     }
 
@@ -78,12 +77,6 @@ public class BaseApplication extends Application {
             setSupDao();
         }
         return daoSession;
-    }
-
-    public DaoMaster getDaomaster(){
-        if (daoMaster==null)
-            setSupDao();
-        return daoMaster;
     }
 
     private void initARouter() {

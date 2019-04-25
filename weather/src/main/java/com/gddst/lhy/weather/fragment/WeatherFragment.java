@@ -16,13 +16,11 @@ import android.widget.Toast;
 import androidx.core.widget.NestedScrollView;
 
 import com.bumptech.glide.Glide;
-import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseApplication;
 import com.gddst.app.lib_common.base.fragment.BaseFragment;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
 import com.gddst.app.lib_common.utils.DateUtil;
-import com.gddst.app.lib_common.weather.db.CityVo;
 import com.gddst.app.lib_common.weather.util.Keys;
 import com.gddst.lhy.weather.R;
 import com.gddst.lhy.weather.WeatherActivity;
@@ -30,7 +28,6 @@ import com.gddst.lhy.weather.util.WeatherUtil;
 import com.gddst.lhy.weather.vo.AirNow;
 import com.gddst.lhy.weather.vo.WeatherVo;
 
-import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -213,25 +210,26 @@ public class WeatherFragment extends BaseFragment {
                     editor.putString(weatherVo.getBasic().getCid(), BaseApplication.getGson().toJson(weatherVo));
                     editor.apply();
 
-                    //保存城市信息
-                    CityVo cityVo=new CityVo();
-                    cityVo.setCid(weatherVo.getBasic().getCid());
-                    cityVo.setLocation(weatherVo.getBasic().getLocation());
-                    cityVo.setAdmin_area(weatherVo.getBasic().getAdmin_area());
-                    cityVo.setCnty(weatherVo.getBasic().getCnty());
-                    cityVo.setLat(weatherVo.getBasic().getLat());
-                    cityVo.setLon(weatherVo.getBasic().getLon());
-                    cityVo.setParent_city(weatherVo.getBasic().getParent_city());
-                    cityVo.setTz(weatherVo.getBasic().getTz());
-//                    cityVo.setUpdateTime(DateUtil.getNow());
-                    cityVo.setCityType(cityType);
-                    List<CityVo> cityVoList= BaseApplication.getIns().getDaoSession().getCityVoDao()
-                            .queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
-                    if (cityVoList.size()==0){
-                        BaseApplication.getIns().getDaoSession().getCityVoDao().insertOrReplace(cityVo);
-                        //数据插入成功发送
-                        EventBus.getDefault().post(cityVo);
-                    }
+//                    //保存城市信息
+//                    CityVo cityVo=new CityVo();
+//                    cityVo.setCid(weatherVo.getBasic().getCid());
+//                    cityVo.setLocation(weatherVo.getBasic().getLocation());
+//                    cityVo.setAdmin_area(weatherVo.getBasic().getAdmin_area());
+//                    cityVo.setCnty(weatherVo.getBasic().getCnty());
+//                    cityVo.setLat(weatherVo.getBasic().getLat());
+//                    cityVo.setLon(weatherVo.getBasic().getLon());
+//                    cityVo.setParent_city(weatherVo.getBasic().getParent_city());
+//                    cityVo.setTz(weatherVo.getBasic().getTz());
+//                    cityVo.setAddCityTime(DateUtil.getNow());
+//                    cityVo.setCityType(cityType);
+//                    List<CityVo> cityVoList= BaseApplication.getIns().getDaoSession().getCityVoDao()
+//                            .queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
+//                    if (cityVoList.size()==0){
+//                        BaseApplication.getIns().getDaoSession().getCityVoDao().insertOrReplace(cityVo);
+//                        //数据插入成功发送
+//                    }
+//                    EventBus.getDefault().post(WeatherUtil.delete_action);
+
                     return weatherVo;
                 }
                 return new WeatherVo();

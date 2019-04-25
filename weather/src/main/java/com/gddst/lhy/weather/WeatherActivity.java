@@ -34,11 +34,13 @@ import com.gddst.app.lib_common.location.LocationInfoExt;
 import com.gddst.app.lib_common.location.LocationIntentService;
 import com.gddst.app.lib_common.net.DlObserve;
 import com.gddst.app.lib_common.net.NetManager;
+import com.gddst.app.lib_common.utils.DateUtil;
 import com.gddst.app.lib_common.weather.db.CityVo;
 import com.gddst.app.lib_common.weather.util.Keys;
 import com.gddst.app.lib_common.widgets.MySwipeRefreshLayout;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.fragment.CityListFragment;
+import com.gddst.lhy.weather.fragment.CitySearchFragment;
 import com.gddst.lhy.weather.fragment.CommonPageAdapter;
 import com.gddst.lhy.weather.fragment.ProvinceCityFragment;
 import com.gddst.lhy.weather.fragment.WeatherFragment;
@@ -52,7 +54,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.functions.Consumer;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
@@ -74,7 +78,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     private CommonPageAdapter weatherAdapter;
     private List<Fragment> weatherFragmentList;
     private WeatherFragment newWeatherFragment;
-    private List<CityVo> cityVoList;
+    private List<CityVo> cityVoAllList;
     private CityVo cityVo;
     private int enabledNum=0;   //指示灯当前显示位置
     @Override
@@ -125,36 +129,38 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         weatherFragmentList=new ArrayList<>();
         weatherAdapter=new CommonPageAdapter(getSupportFragmentManager());
         weatherViewPager.setAdapter(weatherAdapter);
-        cityVoList= new ArrayList<>();
+        cityVoAllList= new ArrayList<>();
         updatList();
     }
 
     private void updatList(){
         //清空数据源，将指示器重置为0
-        cityVoList.clear();
+        cityVoAllList.clear();
         weatherFragmentList.clear();
         linelayout_indicator.removeAllViews();
         enabledNum=0;
 
-        cityVoList.addAll(BaseApplication.getIns().getDaoSession()
-                .getCityVoDao().queryBuilder().orderAsc(CityVoDao.Properties.CityType).list());
+        cityVoAllList.addAll(BaseApplication.getIns().getDaoSession()
+                .getCityVoDao().queryBuilder()
+                .orderAsc(CityVoDao.Properties.CityType)
+                .orderAsc(CityVoDao.Properties.Id).list());
         int currentItem=0;
-        for (int i = 0; i < cityVoList.size(); i++) {
-            WeatherFragment weatherFragment=WeatherFragment.getFragment(cityVoList.get(i).getCid());
+        for (int i = 0; i < cityVoAllList.size(); i++) {
+            WeatherFragment weatherFragment=WeatherFragment.getFragment(cityVoAllList.get(i).getCid());
             weatherFragmentList.add(weatherFragment);
 
-            CityVo cityVo=cityVoList.get(i);
+            CityVo cityVo=cityVoAllList.get(i);
             if (cityVo.getCityType()==WeatherUtil.city_location){
                 currentItem=i;
             }
 
-            createImage(i==0,cityVoList.size()>1&&i==0);
+            createImage(i==0,cityVoAllList.size()>1&&i==0);
 
         }
         weatherAdapter.updatePage(weatherFragmentList);
         weatherViewPager.setCurrentItem(currentItem);
-        if (cityVoList.size()>0){
-            showCityName(cityVoList.get(currentItem).getCid());
+        if (cityVoAllList.size()>0){
+            showCityName(cityVoAllList.get(currentItem).getCid());
             newWeatherFragment= (WeatherFragment) weatherFragmentList.get(currentItem);
         }else {
             //说明没有城市信息，需要
@@ -162,7 +168,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         }
 
         //设置当只有一个城市的时候不显示指示器
-        if (cityVoList.size()==1){
+        if (cityVoAllList.size()==1){
             linelayout_indicator.setVisibility(View.GONE);
         }else {
             linelayout_indicator.setVisibility(View.VISIBLE);
@@ -208,10 +214,21 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         String weatherVoString = sharedPreferences.getString(cityId, "");
         Gson gson=new Gson();
         WeatherVo weatherVo=gson.fromJson(weatherVoString,WeatherVo.class);
-
-        tv_title.setText(weatherVo.getBasic().getLocation());
-        String timeStr=weatherVo.getUpdate().getLoc().split(" ")[1];
-        tv_time.setText(timeStr);
+        if (weatherVo!=null){
+            WeatherVo.BasicBean basicBean=weatherVo.getBasic();
+            if (basicBean!=null){
+                String location=basicBean.getLocation();
+                tv_title.setText(location==null?"":location);
+            }
+            WeatherVo.UpdateBean updateBean=weatherVo.getUpdate();
+            if (updateBean!=null){
+                String loc=updateBean.getLoc();
+                if (loc!=null){
+                    String timeStr=loc.split(" ")[1];
+                    tv_time.setText(timeStr);
+                }
+            }
+        }
     }
 
     private void requestPermission() {
@@ -257,15 +274,15 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     @Override
     public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
         Log.i("tag",position+"");
-        if (cityVoList.size()>position){
-            cityVo=cityVoList.get(position);
+        if (cityVoAllList.size()>position){
+            cityVo=cityVoAllList.get(position);
         }
     }
 
     @Override
     public void onPageSelected(int position) {
-        if (cityVoList.size()>position){
-            cityVo=cityVoList.get(position);
+        if (cityVoAllList.size()>position){
+            cityVo=cityVoAllList.get(position);
             showCityName(cityVo.getCid());
         }
 
@@ -337,6 +354,9 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             if (weatherFragmentList.size()==0){
                 //这里需要通过坐标信息去拿城市id
                 getCityId(location, WeatherUtil.city_location);
+
+                //动态添加指示器
+                createImage(true,false);
             }
         }
         else if (event instanceof DummyContent.DummyItem){
@@ -353,17 +373,95 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             createImage(false,false);
         }
         else if (event instanceof CityVo ){
-            //插入成功后查询数据库并将数据源发送出去
-            List<CityVo> cityVos=BaseApplication.getIns().getDaoSession().getCityVoDao()
-                    .queryBuilder().list();
-            cityVoList.clear();
-            cityVoList.addAll(cityVos);
+            //从搜索页面跳回主页面
+            searchToActivity((CityVo) event);
         }
         //删除城市成功刷新viewpage数据
         else if (event instanceof WeatherVo){
             WeatherVo weatherVo= (WeatherVo) event;
             updateViewPathe(weatherVo);
         }
+        //其他
+        else if (event instanceof String){
+            String action= (String) event;
+            //从城市管理页面回到主页面
+            if (action.equals(WeatherUtil.back_action)){
+
+            }
+            else if (action.equals(WeatherUtil.delete_action)){
+                //插入成功后查询数据库并将数据源发送出去
+                cityListUpdate();
+            }
+        }
+    }
+
+    private void cityListUpdate() {
+        List<CityVo> cityVos = BaseApplication.getIns().getDaoSession().getCityVoDao()
+                .queryBuilder().list();
+        cityVoAllList.clear();
+        cityVoAllList.addAll(cityVos);
+    }
+
+    private void searchToActivity(CityVo event) {
+        Observable.just(event)
+                .doOnNext(new Consumer<CityVo>() {  //清除fragment返回栈
+                    @Override
+                    public void accept(CityVo cityVo) throws Exception {
+                        FragmentTransaction fragmentTransaction=getSupportFragmentManager().beginTransaction();
+                        List<Fragment> fragmentList= getSupportFragmentManager()
+                                .getFragments();
+                        if (fragmentList.size()>0){
+                            for (int i = 0; i < fragmentList.size(); i++) {
+                                Fragment fragment=  fragmentList.get(i);
+                                if (fragment instanceof CityListFragment || fragment instanceof CitySearchFragment){
+                                    fragmentTransaction.remove(fragment);
+                                }
+                            }
+                        }
+                        fragmentTransaction.commit();
+                    }
+                })
+                .doOnNext(new Consumer<CityVo>() {  //数据处理
+                    @Override
+                    public void accept(CityVo cityVo) throws Exception {
+                        List<CityVo> cityVos = BaseApplication.getIns().getDaoSession().getCityVoDao().queryBuilder()
+                                .where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
+                        if (cityVos.size()==0){
+                            cityVo.setCityType(WeatherUtil.city_select);
+                            cityVo.setAddCityTime(DateUtil.getNow());
+                            BaseApplication.getIns().getDaoSession().getCityVoDao().insert(cityVo);
+                            cityListUpdate();
+
+                            //动态添加指示器
+                            createImage(false,false);
+                            //添加天气页面
+                            addWertherFragment(cityVo.getCid(),WeatherUtil.city_select);
+                        }else {
+                            //数据库存在
+                            //viewpage跳转到所选择的城市页面
+                            CityVo cityVoSelected= cityVo;
+                            for (int i = 0; i < cityVoAllList.size(); i++) {
+                                if (cityVoSelected.getCid().equals(cityVoAllList.get(i).getCid())){
+                                    weatherViewPager.setCurrentItem(i);
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }).subscribe(new DlObserve<CityVo>() {
+            @Override
+            public void onResponse(CityVo cityVo) throws IOException {
+
+            }
+
+            @Override
+            public void onError(int errorCode, String errorMsg) {
+
+            }
+        });
+
+
+
     }
 
     private void updateViewPathe(WeatherVo weatherVo) {
@@ -407,13 +505,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                 .subscribe(new DlObserve<String>() {
                     @Override
                     public void onResponse(String s) throws IOException {
-                        WeatherFragment weatherFragment=WeatherFragment.getFragment(s);
-//                        weatherFragmentList.add(weatherFragment);
-                        weatherAdapter.addPage(weatherFragment);
-                        weatherViewPager.setCurrentItem(weatherAdapter.getFragmentList().size()-1);
-
-                        weatherFragment.requestWeather(s,cityType);
-
+                        addWertherFragment(s, cityType);
                     }
 
                     @Override
@@ -421,6 +513,14 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
                     }
                 });
+    }
+
+    private void addWertherFragment(String cityId, int cityType) {
+        WeatherFragment weatherFragment=WeatherFragment.getFragment(cityId);
+        weatherAdapter.addPage(weatherFragment);
+        weatherViewPager.setCurrentItem(weatherAdapter.getCount()-1);
+
+        weatherFragment.requestWeather(cityId,cityType);
     }
 
     @Override
