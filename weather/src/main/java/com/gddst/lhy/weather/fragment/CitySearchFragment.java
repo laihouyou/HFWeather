@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.FragmentTransaction;
+import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -35,6 +36,8 @@ import com.github.jdsjlzx.interfaces.OnRefreshListener;
 import com.github.jdsjlzx.recyclerview.LRecyclerView;
 import com.github.jdsjlzx.recyclerview.LRecyclerViewAdapter;
 import com.google.gson.reflect.TypeToken;
+
+import org.greenrobot.eventbus.EventBus;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -88,7 +91,7 @@ public class CitySearchFragment extends BackFragment {
 
         city_search_recycler=view.findViewById(R.id.city_search_recycler);
         city_search_recycler.setPullRefreshEnabled(false);
-//        city_recycler_recyclerView.addItemDecoration(SpacesItemDecoration.newInstance(15,20,layoutManager.getChildCount()));
+        city_search_recycler.addItemDecoration(new DividerItemDecoration(getActivity(),1));
         setListRecyclerView();
     }
 
@@ -183,7 +186,7 @@ public class CitySearchFragment extends BackFragment {
                 cityHostList
         ) {
             @Override
-            protected void convert(ViewHolder viewHolder, CityVo cityVo, int position) {
+            protected void convert(ViewHolder viewHolder, final CityVo cityVo, int position) {
                 TextView item_text=viewHolder.getView(R.id.item_text);
                 item_text.setText(cityVo.getLocation());
                 //如果是定位城市，动态设置定位图标
@@ -194,7 +197,7 @@ public class CitySearchFragment extends BackFragment {
                 }else {
                     item_text.setCompoundDrawables(null,null,null,null);
                 }
-                //判断是否选中
+
                 if (cityVo.getIsSelected()){
                     item_text.setTextColor(getResources().getColor(R.color.cornflowerblue12));
                     item_text.setBackgroundResource(R.drawable.city_search_host_list_selected);
@@ -206,7 +209,7 @@ public class CitySearchFragment extends BackFragment {
                 viewHolder.setOnClickListener(R.id.item_text, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        evenBusPostCityVo(cityVo);
                     }
                 });
             }
@@ -220,13 +223,12 @@ public class CitySearchFragment extends BackFragment {
 
         search_cityHostAdapter=new CommonRecycleViewAdapter<CityVo>(
                 getActivity(),
-                R.layout.item_text,
+                R.layout.item_search_text,
                 search_cityList
         ) {
             @Override
-            protected void convert(ViewHolder viewHolder, CityVo cityVo, int position) {
-                SignKeyWordTextView item_text=viewHolder.getView(R.id.item_text);
-
+            protected void convert(ViewHolder viewHolder, final CityVo cityVo, int position) {
+                SignKeyWordTextView item_text=viewHolder.getView(R.id.item_search_text);
                 item_text.setTextColor(getResources().getColor(R.color.point_facility11));
                 item_text.setBackgroundColor(getResources().getColor(R.color.white));
                 //设置高亮关键字
@@ -237,12 +239,25 @@ public class CitySearchFragment extends BackFragment {
                         cityVo.getLocation()+","+cityVo.getParent_city()+","+cityVo.getAdmin_area(),
                         TextView.BufferType.NORMAL);
 
-                viewHolder.setOnClickListener(R.id.item_text, new View.OnClickListener() {
+                viewHolder.setOnClickListener(R.id.item_search_text, new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-
+                        evenBusPostCityVo(cityVo);
                     }
                 });
+
+                //判断本地数据库中是否有该城市
+                List<CityVo> cityVoDbList=BaseApplication.getIns().getDaoSession().getCityVoDao()
+                        .queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
+                if (cityVoDbList.size()>0){
+                    viewHolder.setText(R.id.item_search_hint,getString(R.string.added));
+                    viewHolder.setTextColor(R.id.item_search_hint,getResources().getColor(R.color.lightseagreen));
+                    viewHolder.setVisible(R.id.item_search_hint,View.VISIBLE);
+                }else {
+                    viewHolder.setText(R.id.item_search_hint,"");
+                    viewHolder.setTextColor(R.id.item_search_hint,getResources().getColor(R.color.lightseagreen));
+                    viewHolder.setVisible(R.id.item_search_hint,View.GONE);
+                }
             }
         };
         search_lRecyclerViewAdapter=new LRecyclerViewAdapter(search_cityHostAdapter);
@@ -251,6 +266,10 @@ public class CitySearchFragment extends BackFragment {
         city_search_recycler.setLoadMoreEnabled(false);
 
 
+    }
+
+    private void evenBusPostCityVo(CityVo cityVo) {
+        EventBus.getDefault().post(cityVo);
     }
 
     private void addHeaderView() {
@@ -310,7 +329,7 @@ public class CitySearchFragment extends BackFragment {
                                     .getCityVoDao().queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVoHost.getCid())).list();
                             if (cityDbVos.size()==1){
                                 CityVo cityVodb=cityDbVos.get(0);
-                                cityVoHost.setIsSelected(cityVodb.getIsSelected());
+                                cityVoHost.setIsSelected(true);
                                 cityVoHost.setAddCityTime(cityVodb.getAddCityTime());
                                 cityVoHost.setCityType(cityVodb.getCityType());
                                 continue;
