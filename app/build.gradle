@@ -9,6 +9,7 @@ android {
         versionName "1.0.0"
         minSdkVersion build_versions.min_sdk
         targetSdkVersion build_versions.target_sdk
+
     }
 
     signingConfigs {
@@ -42,7 +43,6 @@ dependencies {
     implementation deps.support.multidex
     implementation project(':lib_common')
     if (!isModule.toBoolean()) {
-
+        implementation project(':weather')
     }
-    implementation project(':weather')
 }

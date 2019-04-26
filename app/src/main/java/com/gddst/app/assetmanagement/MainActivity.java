@@ -11,10 +11,10 @@ import android.widget.Toast;
 import androidx.annotation.Nullable;
 import androidx.appcompat.widget.Toolbar;
 
+import com.alibaba.android.arouter.launcher.ARouter;
 import com.gddst.app.lib_common.base.BaseActivity;
 import com.gddst.app.lib_common.widgets.QRCodeActivity;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
-import com.gddst.lhy.weather.WeatherActivity;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 public class MainActivity extends BaseActivity {
@@ -41,8 +41,7 @@ public class MainActivity extends BaseActivity {
             public void onClick(View view) {
 
                 //天气
-                Intent intent=new Intent(MainActivity.this, WeatherActivity.class);
-                startActivity(intent);
+                ARouter.getInstance().build("/lhy/weather").navigation();
             }
         });
 

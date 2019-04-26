@@ -1,9 +1,14 @@
-apply plugin: 'com.android.library'
+if (isModule.toBoolean()) {
+    apply plugin: 'com.android.application'
+} else {
+    apply plugin: 'com.android.library'
+}
 
 android {
     compileSdkVersion build_versions.target_sdk
     buildToolsVersion build_versions.build_tools
     defaultConfig {
+        applicationId "com.gddst.app.weather"
         minSdkVersion build_versions.min_sdk
         targetSdkVersion build_versions.target_sdk
         versionCode 1
@@ -11,6 +16,11 @@ android {
 
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = [AROUTER_MODULE_NAME: project.getName()]
+            }
+        }
     }
 
     signingConfigs {
@@ -19,6 +29,20 @@ android {
             storePassword KEYSTORE_PASSWORD
             keyAlias KEY_ALIAS
             keyPassword KEY_PASSWORD
+        }
+    }
+
+    sourceSets {
+        main {
+            if (isModule.toBoolean()) {
+                manifest.srcFile 'src/main/module/AndroidManifest.xml'
+            } else {
+                manifest.srcFile 'src/main/AndroidManifest.xml'
+                //集成开发模式下排除debug文件夹中的所有Java文件
+                java {
+                    exclude 'debug/**'
+                }
+            }
         }
     }
 
@@ -33,10 +57,15 @@ android {
         }
     }
 
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
 
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
+    annotationProcessor deps.arouter_compiler
     implementation project(':lib_common')
 }

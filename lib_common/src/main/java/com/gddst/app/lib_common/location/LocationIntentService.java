@@ -16,6 +16,7 @@ import com.gddst.app.lib_common.location.trace.Agps;
 
 
 public class LocationIntentService extends Service {
+    private Agps agps;
 
     @Nullable
     @Override
@@ -27,7 +28,15 @@ public class LocationIntentService extends Service {
     public void onCreate() {
         super.onCreate();
         this.startForeground(5556,buildNotification(BaseApplication.getIns()));
-        Agps agps=new Agps(this);
+        if (agps==null)
+            agps=new Agps(this);
+    }
+
+    @Override
+    public void onStart(Intent intent, int startId) {
+        super.onStart(intent, startId);
+        if (agps!=null)
+            agps.startLocation();
     }
 
     private static final String NOTIFICATION_CHANNEL_NAME = "BackgroundLocation";

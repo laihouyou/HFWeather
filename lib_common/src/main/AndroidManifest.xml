@@ -30,17 +30,13 @@
     <uses-permission android:name="android.permission.BLUETOOTH"></uses-permission>
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"></uses-permission>
 
-    <application android:theme="@style/AppTheme.NoActionBar">
+    <application android:theme="@style/AppTheme">
         <service
                 android:name=".location.LocationIntentService"
                 android:exported="false">
         </service>
         <service android:name="com.amap.api.location.APSService">
         </service>
-
-        <meta-data
-                android:name="com.amap.api.v2.apikey"
-                android:value="da02467a273b34bebeb0065ab169ff42"/>
 
         <activity
                 android:name=".widgets.QRCodeActivity"

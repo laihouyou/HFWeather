@@ -16,8 +16,6 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.GravityCompat;
-import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentStatePagerAdapter;
@@ -26,6 +24,7 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import com.alibaba.android.arouter.facade.annotation.Route;
 import com.com.sky.downloader.greendao.CityVoDao;
 import com.gddst.app.lib_common.base.BaseActivity;
 import com.gddst.app.lib_common.base.BaseApplication;
@@ -42,7 +41,6 @@ import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.fragment.CityListFragment;
 import com.gddst.lhy.weather.fragment.CitySearchFragment;
 import com.gddst.lhy.weather.fragment.CommonPageAdapter;
-import com.gddst.lhy.weather.fragment.ProvinceCityFragment;
 import com.gddst.lhy.weather.fragment.WeatherFragment;
 import com.gddst.lhy.weather.fragment.dummy.DummyContent;
 import com.gddst.lhy.weather.util.JsonUtils;
@@ -62,8 +60,9 @@ import io.reactivex.schedulers.Schedulers;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
+@Route(path = "/lhy/weather")
 public class WeatherActivity extends BaseActivity implements View.OnClickListener,ViewPager.OnPageChangeListener{
-    public DrawerLayout drawerLayout;
+//    public DrawerLayout drawerLayout;
     public MySwipeRefreshLayout swipeRefres;
     public ImageView im_pic;
     public TextView tv_title;
@@ -95,7 +94,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     protected void initView() {
 
         im_pic = findViewById(R.id.im_pic);
-        drawerLayout = findViewById(R.id.drawerLayout);
+//        drawerLayout = findViewById(R.id.drawerLayout);
         weatherViewPager=findViewById(R.id.viewpager_weather);
         weatherViewPager.addOnPageChangeListener(this);
         tv_title = findViewById(R.id.tv_title);
@@ -251,15 +250,15 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     @Override
     public void onClick(View v) {
-        if (v.getId() == R.id.title_image) {
-            ProvinceCityFragment fragment = new ProvinceCityFragment();
-            FragmentManager fragmentManager = getSupportFragmentManager();
-            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
-            fragmentTransaction.replace(R.id.fragment, fragment);
-            fragmentTransaction.commit();
-            drawerLayout.openDrawer(GravityCompat.START);
-        }
-        if (v.getId()==R.id.tv_title){
+//        if (v.getId() == R.id.title_image) {
+//            ProvinceCityFragment fragment = new ProvinceCityFragment();
+//            FragmentManager fragmentManager = getSupportFragmentManager();
+//            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//            fragmentTransaction.replace(R.id.fragment, fragment);
+//            fragmentTransaction.commit();
+//            drawerLayout.openDrawer(GravityCompat.START);
+//        }
+        if (v.getId()==R.id.title_image){
             CityListFragment cityListFragment=new CityListFragment();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
@@ -363,9 +362,9 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
             DummyContent.DummyItem item= (DummyContent.DummyItem) event;
             String cityName=item.name;
 
-            if (drawerLayout!=null){
-                drawerLayout.closeDrawers();
-            }
+//            if (drawerLayout!=null){
+//                drawerLayout.closeDrawers();
+//            }
             //这里需要通过城市名字去拿城市id
             getCityId(cityName,WeatherUtil.city_select);
 

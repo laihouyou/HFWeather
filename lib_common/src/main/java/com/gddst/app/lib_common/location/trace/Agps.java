@@ -91,6 +91,12 @@ public class Agps {
 		}
 	}
 
+	public void startLocation(){
+		if (locationClient!=null&&!locationClient.isStarted()){
+			locationClient.startLocation();
+		}
+	}
+
 	/**
 	 * 定位监听
 	 */
