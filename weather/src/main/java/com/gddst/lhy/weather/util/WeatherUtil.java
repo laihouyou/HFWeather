@@ -35,12 +35,14 @@ public class WeatherUtil {
     public static final String updata_action="updata_action";
     //删除城市后更新主页面数据
     public static final String delete_action="delete_action";
+    //定位成功插入城市后更新主页面数据
+    public static final String add_action="add_action";
 
     //保存本地数据的热门城市数据
     public static final String hostCityListStr="hostCityListStr";
 
     //天气自动更新间隔时间
-    public static final long weatherUpdateTimeInterval=60*60;
+    public static final long weatherUpdateTimeInterval=4*60*60;
 
     //定位城市类型
     public static final int city_location=1;

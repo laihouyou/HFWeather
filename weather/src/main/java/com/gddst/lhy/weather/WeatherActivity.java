@@ -6,22 +6,20 @@ import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentStatePagerAdapter;
 import androidx.fragment.app.FragmentTransaction;
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
-import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 import com.alibaba.android.arouter.facade.annotation.Route;
@@ -51,6 +49,7 @@ import com.google.gson.Gson;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
@@ -109,6 +108,11 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         swipeRefres.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
+                if (TextUtils.isEmpty(cityVo.getCid())){
+                    swipeRefres.setRefreshing(false);
+                    Toast.makeText(WeatherActivity.this,"更新错误,城市id为空",Toast.LENGTH_LONG).show();
+                    return;
+                }
                 newWeatherFragment.requestWeather(cityVo.getCid(),cityVo.getCityType());
                 newWeatherFragment.getPicImage();
                 Log.i("tag","天气请求刷新++++++++++++++++++++++++++");
@@ -307,41 +311,6 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 
     }
 
-    private class WeatherAdapter extends FragmentStatePagerAdapter {
-
-        public WeatherAdapter(@NonNull FragmentManager fm) {
-            super(fm);
-        }
-
-        @NonNull
-        @Override
-        public Fragment getItem(int position) {
-            return weatherFragmentList.get(position);
-        }
-
-        @Override
-        public int getCount() {
-            return weatherFragmentList.size();
-        }
-
-        @Override
-        public int getItemPosition(@NonNull Object object) {
-            return PagerAdapter.POSITION_NONE;
-        }
-
-        /*
-         * 重写该方法，取消调用父类该方法
-         * 可以避免在viewpager切换，fragment不可见时执行到onDestroyView，可见时又从onCreateView重新加载视图
-         * 因为父类的destroyItem方法中会调用detach方法，将fragment与view分离，（detach()->onPause()->onStop()->onDestroyView()）
-         * 然后在instantiateItem方法中又调用attach方法，此方法里判断如果fragment与view分离了，
-         * 那就重新执行onCreateView，再次将view与fragment绑定（attach()->onCreateView()->onActivityCreated()->onStart()->onResume()）
-         * */
-        @Override
-        public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-//            super.destroyItem(container, position, object);
-        }
-    }
-
     @Override
     protected void onMessageEvent(Object event) {
         super.onMessageEvent(event);
@@ -392,6 +361,14 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                 cityListUpdate();
             }
         }
+        // 与上面有重复的时候需要用map组装发送
+        else  if (event instanceof Map){
+            Map hashMap= (Map) event;
+            if (hashMap.containsKey(WeatherUtil.add_action)){
+                cityVo= (CityVo) hashMap.get(WeatherUtil.add_action);
+                Log.i("tag",cityVo.toString());
+            }
+        }
     }
 
     private void cityListUpdate() {
@@ -423,6 +400,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                 .doOnNext(new Consumer<CityVo>() {  //数据处理
                     @Override
                     public void accept(CityVo cityVo) throws Exception {
+                        //返回时如果数据不存在
                         List<CityVo> cityVos = BaseApplication.getIns().getDaoSession().getCityVoDao().queryBuilder()
                                 .where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
                         if (cityVos.size()==0){
@@ -464,30 +442,19 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
     }
 
     private void updateViewPathe(WeatherVo weatherVo) {
-        String cid=weatherVo.getBasic().getCid();
-        for (int i=0;i<weatherFragmentList.size();i++){
-            WeatherFragment weatherFragment= (WeatherFragment) weatherFragmentList.get(i);
-            if (weatherFragment.getArguments()!=null){
-                String fragmentCid=weatherFragment.getArguments().getString(WeatherUtil.cid);
-                if (cid.equals(fragmentCid)){
-                    weatherFragmentList.remove(weatherFragment);
-                    updatList();
-//                    //指示器删除对应
-//                    linelayout_indicator.removeViewAt(i);
-//                    //设置当只有一个城市的时候不显示指示器
-//                    if (weatherFragmentList.size()==1){
-//                        linelayout_indicator.setVisibility(View.GONE);
-//                    }else {
-//                        linelayout_indicator.setVisibility(View.VISIBLE);
-//                    }
-//                    //刷新数据源
-//                    weatherAdapter.notifyDataSetChanged();
-//                    //每次删除成功后设置第一个城市显示
-//                    weatherViewPager.setCurrentItem(0);
-                    break;
-                }
-            }
-        }
+        updatList();
+//        String cid=weatherVo.getBasic().getCid();
+//        for (int i=0;i<weatherFragmentList.size();i++){
+//            WeatherFragment weatherFragment= (WeatherFragment) weatherFragmentList.get(i);
+//            if (weatherFragment.getArguments()!=null){
+//                String fragmentCid=weatherFragment.getArguments().getString(WeatherUtil.cid);
+//                if (cid.equals(fragmentCid)){
+//                    weatherFragmentList.remove(weatherFragment);
+//                    updatList();
+//                    break;
+//                }
+//            }
+//        }
     }
 
     private void getCityId(final String cityName, final int cityType) {
@@ -518,6 +485,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
         WeatherFragment weatherFragment=WeatherFragment.getFragment(cityId);
         weatherAdapter.addPage(weatherFragment);
         weatherViewPager.setCurrentItem(weatherAdapter.getCount()-1);
+        newWeatherFragment=weatherFragment;
 
         weatherFragment.requestWeather(cityId,cityType);
     }

@@ -38,39 +38,6 @@
         </androidx.viewpager.widget.ViewPager>
     </com.gddst.app.lib_common.widgets.MySwipeRefreshLayout>
 
-   <!-- <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/drawerLayout"
-        android:layout_width="@dimen/dp_0"
-        android:layout_height="@dimen/dp_0"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/guideline3"
-        app:layout_constraintVertical_bias="0.66999996"
-        >
-        <com.gddst.app.lib_common.widgets.MySwipeRefreshLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/swipeRefres"
-            >
-            <androidx.viewpager.widget.ViewPager
-                android:id="@+id/viewpager_weather"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-
-            </androidx.viewpager.widget.ViewPager>
-        </com.gddst.app.lib_common.widgets.MySwipeRefreshLayout>
-
-
-        <FrameLayout
-            android:id="@+id/fragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_gravity="start">
-
-        </FrameLayout>
-
-    </androidx.drawerlayout.widget.DrawerLayout>-->
 
     <androidx.constraintlayout.widget.Guideline
         android:id="@+id/guideline3"

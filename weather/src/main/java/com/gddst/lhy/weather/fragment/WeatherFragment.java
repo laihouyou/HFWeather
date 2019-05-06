@@ -30,12 +30,15 @@ import com.gddst.lhy.weather.util.WeatherUtil;
 import com.gddst.lhy.weather.vo.AirNow;
 import com.gddst.lhy.weather.vo.WeatherVo;
 
+import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import io.reactivex.Observable;
 import io.reactivex.ObservableSource;
@@ -200,41 +203,39 @@ public class WeatherFragment extends BaseFragment {
     }
 
     private Observable getZip(Observable observableNow, Observable observableAirNow, final int cityType){
-        return Observable.zip(observableNow, observableAirNow, new BiFunction() {
+        return Observable.zip(observableNow, observableAirNow, new BiFunction<WeatherVo,AirNow,WeatherVo>() {
             @Override
-            public Object apply(Object o, Object o2) throws Exception {
-                if (o instanceof WeatherVo&&o2 instanceof AirNow){
-                    WeatherVo weatherVo= (WeatherVo) o;
-                    AirNow airNow= (AirNow) o2;
-                    weatherVo.setAirNow(airNow);
-                    SharedPreferences.Editor editor = PreferenceManager
-                            .getDefaultSharedPreferences(BaseApplication.getIns()).edit();
-                    editor.putString(weatherVo.getBasic().getCid(), BaseApplication.getGson().toJson(weatherVo));
-                    editor.apply();
+            public WeatherVo apply(WeatherVo weatherVo, AirNow airNow) throws Exception {
+                weatherVo.setAirNow(airNow);
+                SharedPreferences.Editor editor = PreferenceManager
+                        .getDefaultSharedPreferences(BaseApplication.getIns()).edit();
+                editor.putString(weatherVo.getBasic().getCid(), BaseApplication.getGson().toJson(weatherVo));
+                editor.apply();
 
-                    //保存城市信息
-                    CityVo cityVo=new CityVo();
-                    cityVo.setCid(weatherVo.getBasic().getCid());
-                    cityVo.setLocation(weatherVo.getBasic().getLocation());
-                    cityVo.setAdmin_area(weatherVo.getBasic().getAdmin_area());
-                    cityVo.setCnty(weatherVo.getBasic().getCnty());
-                    cityVo.setLat(weatherVo.getBasic().getLat());
-                    cityVo.setLon(weatherVo.getBasic().getLon());
-                    cityVo.setParent_city(weatherVo.getBasic().getParent_city());
-                    cityVo.setTz(weatherVo.getBasic().getTz());
-                    cityVo.setAddCityTime(DateUtil.getNow());
-                    cityVo.setCityType(cityType);
-                    List<CityVo> cityVoList= BaseApplication.getIns().getDaoSession().getCityVoDao()
-                            .queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
-                    if (cityVoList.size()==0){
-                        BaseApplication.getIns().getDaoSession().getCityVoDao().insertOrReplace(cityVo);
-                        //数据插入成功发送
-                    }
-//                    EventBus.getDefault().post(WeatherUtil.delete_action);
+                //保存城市信息
+                CityVo cityVo = new CityVo();
+                cityVo.setCid(weatherVo.getBasic().getCid());
+                cityVo.setLocation(weatherVo.getBasic().getLocation());
+                cityVo.setAdmin_area(weatherVo.getBasic().getAdmin_area());
+                cityVo.setCnty(weatherVo.getBasic().getCnty());
+                cityVo.setLat(weatherVo.getBasic().getLat());
+                cityVo.setLon(weatherVo.getBasic().getLon());
+                cityVo.setParent_city(weatherVo.getBasic().getParent_city());
+                cityVo.setTz(weatherVo.getBasic().getTz());
+                cityVo.setAddCityTime(DateUtil.getNow());
+                cityVo.setCityType(cityType);
+                List<CityVo> cityVoList = BaseApplication.getIns().getDaoSession().getCityVoDao()
+                        .queryBuilder().where(CityVoDao.Properties.Cid.eq(cityVo.getCid())).list();
+                if (cityVoList.size() == 0) {
+                    BaseApplication.getIns().getDaoSession().getCityVoDao().insertOrReplace(cityVo);
 
-                    return weatherVo;
+                    Map<String, Object> parMap = new HashMap<>();
+                    parMap.put(WeatherUtil.add_action, cityVo);
+                    //数据插入成功发送
+                    EventBus.getDefault().post(parMap);
                 }
-                return new WeatherVo();
+
+                return weatherVo;
             }
         });
 
