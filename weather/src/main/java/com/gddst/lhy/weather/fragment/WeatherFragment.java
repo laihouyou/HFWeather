@@ -36,6 +36,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,14 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
+import lecho.lib.hellocharts.model.Axis;
+import lecho.lib.hellocharts.model.AxisValue;
+import lecho.lib.hellocharts.model.Line;
+import lecho.lib.hellocharts.model.LineChartData;
+import lecho.lib.hellocharts.model.PointValue;
+import lecho.lib.hellocharts.model.ValueShape;
+import lecho.lib.hellocharts.util.ChartUtils;
+import lecho.lib.hellocharts.view.LineChartView;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -63,11 +72,28 @@ public class WeatherFragment extends BaseFragment {
     private LinearLayout day_linelayout;
     private LinearLayout suggestion_linearlayout;
 
-//    private WeatherVo newWeatherVo;
+    private LineChartView host_24;
+    private LineChartData data;
 
     private WeatherActivity context;
 
     private String cityCid;
+
+    private int numberOfLines = 1;
+    private int maxNumberOfLines = 4;
+    private int numberOfPoints = 12;
+
+    private boolean hasAxes = true;
+    private boolean hasAxesNames = true;
+    private boolean hasLines = true;
+    private boolean hasPoints = true;
+    private ValueShape shape = ValueShape.CIRCLE;
+    private boolean isFilled = true;  //是否填充  true 填充
+    private boolean hasLabels = false;
+    private boolean isCubic = true; //是否曲线  true 曲线  false 直线
+    private boolean hasLabelForSelected = false;
+    private boolean pointsHaveDifferentColor;
+    private boolean hasGradientToTransparent = false;
 
     public static WeatherFragment getFragment(String cityCid){
         WeatherFragment weatherFragment=new WeatherFragment();
@@ -101,6 +127,52 @@ public class WeatherFragment extends BaseFragment {
 
         day_linelayout = view.findViewById(R.id.day_linelayout);
         suggestion_linearlayout = view.findViewById(R.id.suggestion_linearlayout);
+
+        host_24 = view.findViewById(R.id.host_24);
+    }
+
+    private void intiLineChartView(List<WeatherVo.HourlyBean> hourlyBeanList) {
+        List<Line> lines = new ArrayList<>();
+        for (int i = 0; i < numberOfLines; i++) {
+            List<PointValue> pointValues=new ArrayList<>();
+            List<AxisValue> mAxisValues = new ArrayList<>();
+//            List<AxisValue> mYxisValues = new ArrayList<>();
+            for (int j = 0; j < hourlyBeanList.size(); j++) {
+                String time=hourlyBeanList.get(j).getTime();
+                String timeFloat=time.split(" ")[1];
+                float tmp=Float.parseFloat(hourlyBeanList.get(j).getTmp());
+                pointValues.add(new PointValue(j,tmp));
+                mAxisValues.add(new AxisValue(j).setLabel(timeFloat));
+//                mYxisValues.add(new AxisValue(j).setLabel(tmp+"℃"));
+
+            }
+            Line line = new Line(pointValues);
+            line.setColor(ChartUtils.COLORS[i]);
+            line.setShape(shape);
+            line.setCubic(isCubic);
+            line.setFilled(isFilled);
+            line.setHasLabels(hasLabels);
+            line.setHasLabelsOnlyForSelected(hasLabelForSelected);
+            line.setHasLines(hasLines);
+            line.setHasPoints(hasPoints);
+//            line.setHasGradientToTransparent(hasGradientToTransparent);
+            if (pointsHaveDifferentColor){
+                line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
+            }
+            lines.add(line);
+
+            data=new LineChartData(lines);
+            if (hasAxes) {
+                Axis axisX = new Axis();
+                Axis axisY = new Axis().setHasLines(true);
+                axisX.setValues(mAxisValues);
+                data.setAxisXBottom(axisX);
+                data.setAxisYLeft(axisY);
+            }
+
+            data.setBaseValue(Float.NEGATIVE_INFINITY);
+            host_24.setLineChartData(data);
+        }
     }
 
     @Override
@@ -371,6 +443,10 @@ public class WeatherFragment extends BaseFragment {
         context.tv_title.setText(weatherVo.getBasic().getLocation());
         String timeStr=weatherVo.getUpdate().getLoc().split(" ")[1];
         context.tv_time.setText(timeStr);
+
+        //设置24小时天气数据
+        List<WeatherVo.HourlyBean> hourlyBeanList= weatherVo.getHourly();
+        intiLineChartView(hourlyBeanList);
     }
 
 
