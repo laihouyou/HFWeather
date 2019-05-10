@@ -29,7 +29,7 @@
 
                 </include>
 
-                <lecho.lib.hellocharts.view.LineChartView
+                <com.github.mikephil.charting.charts.LineChart
                     android:id="@+id/host_24"
                     android:layout_width="match_parent"
                     android:layout_height="@dimen/dp_100"

@@ -65,6 +65,6 @@ dependencies {
     api deps.glide
     //LRecyclerView
     api deps.l_recycler_view
-    //Android图表 hellocharts
-    api deps.hellocharts
+    //Android图表 mpandroidchart
+    api deps.mpandroidchart
 }

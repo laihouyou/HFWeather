@@ -8,7 +8,9 @@ android {
     compileSdkVersion build_versions.target_sdk
     buildToolsVersion build_versions.build_tools
     defaultConfig {
-        applicationId "com.gddst.app.weather"
+        if (isModule.toBoolean()) {
+            applicationId "com.gddst.app.weather"
+        }
         minSdkVersion build_versions.min_sdk
         targetSdkVersion build_versions.target_sdk
         versionCode 1
@@ -32,6 +34,17 @@ android {
         }
     }
 
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+        debug {
+            signingConfig signingConfigs.release
+        }
+    }
+
     sourceSets {
         main {
             if (isModule.toBoolean()) {
@@ -43,17 +56,6 @@ android {
                     exclude 'debug/**'
                 }
             }
-        }
-    }
-
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.release
-        }
-        debug {
-            signingConfig signingConfigs.release
         }
     }
 

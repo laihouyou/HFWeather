@@ -32,7 +32,7 @@ versions.greendao_gradle_plugin = "3.2.2"
 versions.greendao = "3.2.2"
 
 versions.l_recycler_view = "1.5.4.3"
-versions.hellocharts = "1.5.8"
+versions.mpandroidchart = "v3.1.0"
 
 
 versions.kotlin = "1.1.51"
@@ -136,7 +136,7 @@ deps.location = "com.amap.api:location:$versions.location"
 deps.greendao_gradle_plugin = "org.greenrobot:greendao-gradle-plugin:$versions.greendao_gradle_plugin"
 deps.greendao = "org.greenrobot:greendao:$versions.greendao"
 deps.l_recycler_view = "com.github.jdsjlzx:LRecyclerView:$versions.l_recycler_view"
-deps.hellocharts = "com.github.lecho:hellocharts-android:$versions.hellocharts"
+deps.mpandroidchart = "com.github.PhilJay:MPAndroidChart:$versions.mpandroidchart"
 
 ext.deps = deps
 

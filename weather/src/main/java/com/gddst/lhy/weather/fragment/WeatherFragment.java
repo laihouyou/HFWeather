@@ -17,6 +17,7 @@ import androidx.core.widget.NestedScrollView;
 
 import com.bumptech.glide.Glide;
 import com.com.sky.downloader.greendao.CityVoDao;
+import com.gddst.app.lib_common.MPAndroidChart.LineChartManager;
 import com.gddst.app.lib_common.base.BaseApplication;
 import com.gddst.app.lib_common.base.fragment.BaseFragment;
 import com.gddst.app.lib_common.net.DlObserve;
@@ -29,6 +30,11 @@ import com.gddst.lhy.weather.WeatherActivity;
 import com.gddst.lhy.weather.util.WeatherUtil;
 import com.gddst.lhy.weather.vo.AirNow;
 import com.gddst.lhy.weather.vo.WeatherVo;
+import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.components.XAxis;
+import com.github.mikephil.charting.components.YAxis;
+import com.github.mikephil.charting.data.Entry;
+import com.github.mikephil.charting.formatter.ValueFormatter;
 
 import org.greenrobot.eventbus.EventBus;
 import org.json.JSONArray;
@@ -47,14 +53,6 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.BiFunction;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import lecho.lib.hellocharts.model.Axis;
-import lecho.lib.hellocharts.model.AxisValue;
-import lecho.lib.hellocharts.model.Line;
-import lecho.lib.hellocharts.model.LineChartData;
-import lecho.lib.hellocharts.model.PointValue;
-import lecho.lib.hellocharts.model.ValueShape;
-import lecho.lib.hellocharts.util.ChartUtils;
-import lecho.lib.hellocharts.view.LineChartView;
 import okhttp3.ResponseBody;
 import retrofit2.Response;
 
@@ -72,28 +70,11 @@ public class WeatherFragment extends BaseFragment {
     private LinearLayout day_linelayout;
     private LinearLayout suggestion_linearlayout;
 
-    private LineChartView host_24;
-    private LineChartData data;
+    private LineChart lineChart_host24;
 
     private WeatherActivity context;
 
     private String cityCid;
-
-    private int numberOfLines = 1;
-    private int maxNumberOfLines = 4;
-    private int numberOfPoints = 12;
-
-    private boolean hasAxes = true;
-    private boolean hasAxesNames = true;
-    private boolean hasLines = true;
-    private boolean hasPoints = true;
-    private ValueShape shape = ValueShape.CIRCLE;
-    private boolean isFilled = true;  //是否填充  true 填充
-    private boolean hasLabels = false;
-    private boolean isCubic = true; //是否曲线  true 曲线  false 直线
-    private boolean hasLabelForSelected = false;
-    private boolean pointsHaveDifferentColor;
-    private boolean hasGradientToTransparent = false;
 
     public static WeatherFragment getFragment(String cityCid){
         WeatherFragment weatherFragment=new WeatherFragment();
@@ -128,51 +109,38 @@ public class WeatherFragment extends BaseFragment {
         day_linelayout = view.findViewById(R.id.day_linelayout);
         suggestion_linearlayout = view.findViewById(R.id.suggestion_linearlayout);
 
-        host_24 = view.findViewById(R.id.host_24);
+        lineChart_host24 = view.findViewById(R.id.host_24);
     }
 
     private void intiLineChartView(List<WeatherVo.HourlyBean> hourlyBeanList) {
-        List<Line> lines = new ArrayList<>();
-        for (int i = 0; i < numberOfLines; i++) {
-            List<PointValue> pointValues=new ArrayList<>();
-            List<AxisValue> mAxisValues = new ArrayList<>();
-//            List<AxisValue> mYxisValues = new ArrayList<>();
-            for (int j = 0; j < hourlyBeanList.size(); j++) {
-                String time=hourlyBeanList.get(j).getTime();
-                String timeFloat=time.split(" ")[1];
-                float tmp=Float.parseFloat(hourlyBeanList.get(j).getTmp());
-                pointValues.add(new PointValue(j,tmp));
-                mAxisValues.add(new AxisValue(j).setLabel(timeFloat));
-//                mYxisValues.add(new AxisValue(j).setLabel(tmp+"℃"));
-
+        //设置X轴数据格式
+        XAxis xAxis=lineChart_host24.getXAxis();
+        xAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                int i= (int) value;
+                String time=hourlyBeanList.get(i).getTime();
+                String timeStr=time.split(" ")[1];
+                return timeStr;
             }
-            Line line = new Line(pointValues);
-            line.setColor(ChartUtils.COLORS[i]);
-            line.setShape(shape);
-            line.setCubic(isCubic);
-            line.setFilled(isFilled);
-            line.setHasLabels(hasLabels);
-            line.setHasLabelsOnlyForSelected(hasLabelForSelected);
-            line.setHasLines(hasLines);
-            line.setHasPoints(hasPoints);
-//            line.setHasGradientToTransparent(hasGradientToTransparent);
-            if (pointsHaveDifferentColor){
-                line.setPointColor(ChartUtils.COLORS[(i + 1) % ChartUtils.COLORS.length]);
-            }
-            lines.add(line);
+        });
 
-            data=new LineChartData(lines);
-            if (hasAxes) {
-                Axis axisX = new Axis();
-                Axis axisY = new Axis().setHasLines(true);
-                axisX.setValues(mAxisValues);
-                data.setAxisXBottom(axisX);
-                data.setAxisYLeft(axisY);
+        YAxis yAxis=lineChart_host24.getAxisLeft();
+        yAxis.setAxisMinimum(0);
+        yAxis.setValueFormatter(new ValueFormatter() {
+            @Override
+            public String getFormattedValue(float value) {
+                return value+"°";
             }
+        });
 
-            data.setBaseValue(Float.NEGATIVE_INFINITY);
-            host_24.setLineChartData(data);
+        ArrayList<Entry> values = new ArrayList<>();
+        for (int i = 0; i < hourlyBeanList.size(); i++) {
+            String tmp=hourlyBeanList.get(i).getTmp();
+            values.add(new Entry(i,Float.parseFloat(tmp)));
         }
+
+        LineChartManager.initSingleLineChart(context,lineChart_host24,values);
     }
 
     @Override
