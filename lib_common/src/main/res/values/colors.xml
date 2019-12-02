@@ -3,6 +3,7 @@
     <color name="colorPrimary">#008577</color>
     <color name="colorPrimaryDark">#00574B</color>
     <color name="colorAccent">#D81B60</color>
+    <color name="dark">#5e5656</color>
 
     <color name="griditems_bg">#ffe8ecef</color>
     <color name="line">#ffd3dde6</color>

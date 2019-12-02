@@ -3,7 +3,7 @@
     package="com.gddst.webapp.wanandroid">
 
     <application>
-        <activity android:name=".WanAndroidMainActivity"></activity>
+        <activity android:name=".ui.WanAndroidMainActivity"></activity>
     </application>
 
 </manifest>
