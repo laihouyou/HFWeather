@@ -37,7 +37,9 @@ import com.gddst.app.lib_common.weather.util.Keys;
 import com.gddst.app.lib_common.widgets.MySwipeRefreshLayout;
 import com.gddst.app.rxpermissions.RxPermissionsUtil;
 import com.gddst.lhy.weather.fragment.CityListFragment;
+import com.gddst.lhy.weather.fragment.CityListFragment2;
 import com.gddst.lhy.weather.fragment.CitySearchFragment;
+import com.gddst.lhy.weather.fragment.CitySearchFragment2;
 import com.gddst.lhy.weather.fragment.CommonPageAdapter;
 import com.gddst.lhy.weather.fragment.WeatherFragment;
 import com.gddst.lhy.weather.fragment.dummy.DummyContent;
@@ -263,7 +265,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
 //            drawerLayout.openDrawer(GravityCompat.START);
 //        }
         if (v.getId()==R.id.title_image){
-            CityListFragment cityListFragment=new CityListFragment();
+            CityListFragment2 cityListFragment=new CityListFragment2();
             FragmentManager fragmentManager = getSupportFragmentManager();
             FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
             //添加加载动画
@@ -389,7 +391,7 @@ public class WeatherActivity extends BaseActivity implements View.OnClickListene
                         if (fragmentList.size()>0){
                             for (int i = 0; i < fragmentList.size(); i++) {
                                 Fragment fragment=  fragmentList.get(i);
-                                if (fragment instanceof CityListFragment || fragment instanceof CitySearchFragment){
+                                if (fragment instanceof CityListFragment2 || fragment instanceof CitySearchFragment2){
                                     fragmentTransaction.remove(fragment);
                                 }
                             }

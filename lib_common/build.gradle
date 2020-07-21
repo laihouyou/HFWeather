@@ -1,4 +1,6 @@
 apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'kotlin-android'
 apply plugin: 'org.greenrobot.greendao' // 添加应用依赖插件
 
 android {
@@ -67,4 +69,13 @@ dependencies {
     api deps.l_recycler_view
     //Android图表 mpandroidchart
     api deps.mpandroidchart
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    //                                       👇 依赖协程核心库
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kotlin_coroutines"
+    //                                       👇 依赖当前平台所对应的平台库
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kotlin_coroutines"
+}
+repositories {
+    mavenCentral()
 }

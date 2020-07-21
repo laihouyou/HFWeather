@@ -6,6 +6,8 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 public abstract class BaseFragment extends Fragment implements IFragmentKeyDownHandled, View.OnTouchListener {
@@ -55,12 +57,19 @@ public abstract class BaseFragment extends Fragment implements IFragmentKeyDownH
         if(mRoot == null){
             mRoot = createView(inflater,container,savedInstanceState);
             isCreateView = true;
-            initView(mRoot);
-            initListener();
-            onVisible();
             mRoot.setOnTouchListener(this);
         }
         return mRoot;
+    }
+
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (view!=null){
+            initView(view);
+            initListener();
+            onVisible();
+        }
     }
 
     protected void onVisible() {

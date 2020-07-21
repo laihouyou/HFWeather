@@ -70,4 +70,11 @@ dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
     annotationProcessor deps.arouter_compiler
     implementation project(':lib_common')
+    implementation "androidx.core:core-ktx:+"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+}
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+repositories {
+    mavenCentral()
 }

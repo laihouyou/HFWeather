@@ -261,7 +261,7 @@ public class CityListFragment extends BackFragment implements View.OnClickListen
         }
         //进入城市搜索页面
         else if (id== R.id.btn_city_add){
-            CitySearchFragment citySearchFragment=new CitySearchFragment();
+            CitySearchFragment2 citySearchFragment=new CitySearchFragment2();
             FragmentTransaction fragmentTransaction=context.getSupportFragmentManager().beginTransaction();
             //添加加载动画
             fragmentTransaction.setCustomAnimations(R.animator.city_search_add,R.animator.city_search_detele);

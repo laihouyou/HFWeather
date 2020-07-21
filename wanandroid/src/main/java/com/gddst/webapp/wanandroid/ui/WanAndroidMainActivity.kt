@@ -1,5 +1,6 @@
 package com.gddst.webapp.wanandroid.ui
 
+import android.content.Context
 import android.os.Bundle
 import android.view.View.OVER_SCROLL_NEVER
 import androidx.appcompat.app.AppCompatActivity
@@ -24,7 +25,7 @@ class WanAndroidMainActivity : AppCompatActivity() {
 
     private fun initRecyclerView() {
 
-        adapter=CommonRecycleViewAdapter<String>(this,)
+//        adapter=CommonRecycleViewAdapter<String>(this,)
 
         recyclerView.adapter=mAdapter
 
@@ -63,6 +64,5 @@ class WanAndroidMainActivity : AppCompatActivity() {
                 .setColorResource(R.color.split)
                 .build()
     }
-
 
 }
