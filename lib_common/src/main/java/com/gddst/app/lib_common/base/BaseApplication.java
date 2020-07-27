@@ -28,7 +28,7 @@ public class BaseApplication extends Application {
 
     public static final String ROOT_PACKAGE = "com.guiying.module";
 
-    private static BaseApplication sInstance;
+    public static BaseApplication sInstance;
 
     private SharedPreferences pPrefere; // 定义数据存储
     private SharedPreferences.Editor pEditor; // sharedpreferred数据提交

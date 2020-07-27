@@ -41,4 +41,9 @@
     <string name="rememberpassword">记住帐户</string>
     <string name="login_msg">登入中请稍后...</string>
 
+
+    <string name="network_connection_failed">网络连接失败</string>
+    <string name="network_request_timeout">网络请求超时</string>
+    <string name="api_data_parse_error">数据解析错误</string>
+
 </resources>
